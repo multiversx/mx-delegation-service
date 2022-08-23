@@ -243,7 +243,6 @@ export class ProvidersService {
 
       const response = ContractConfigResponseDto.fromContractConfig(result.getReturnDataParts());
 
-      console.log(response);
       response.aprValue = await this.delegationAprService.getProviderAPR(contract, Number(response.serviceFee));
       response.apr = response.aprValue.toFixed(2);
 
