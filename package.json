@@ -6,8 +6,8 @@
   "license": "MIT",
   "scripts": {
     "init-plugins": "run-script-os",
-    "init:nix": "rimraf apps/delegation-api/src/plugins && mkdir apps/delegation-api/src/plugins && cp apps/delegation-api/src/plugins.template/plugin.module.ts.template apps/delegation-api/src/plugins/plugin.module.ts",
-    "init:windows": "rimraf apps/delegation-api/src/plugins && mkdir .\\apps\\delegation-api\\src\\plugins & copy .\\apps\\delegation-api\\src\\plugins.template\\plugin.module.ts.template .\\apps\\delegation-api\\src\\plugins\\plugin.module.ts",
+    "init-plugins:nix": "rimraf apps/delegation-api/src/plugins && mkdir apps/delegation-api/src/plugins && cp apps/delegation-api/src/plugins.template/plugin.module.ts.template apps/delegation-api/src/plugins/plugin.module.ts",
+    "init-plugins:windows": "rimraf apps/delegation-api/src/plugins && mkdir .\\apps\\delegation-api\\src\\plugins & copy .\\apps\\delegation-api\\src\\plugins.template\\plugin.module.ts.template .\\apps\\delegation-api\\src\\plugins\\plugin.module.ts",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
