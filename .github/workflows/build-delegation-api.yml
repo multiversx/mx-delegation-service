@@ -26,6 +26,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install node_modules
         run: yarn
+      - name: Install plugins module
+        run: yarn init-plugins
       - name: Build
         run: |
           yarn build
