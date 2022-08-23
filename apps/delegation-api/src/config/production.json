@@ -1,0 +1,10 @@
+{
+  "elrond": {
+    "auctionContract" : "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqplllst77y4l",
+    "stakingContract" : "erd1qqqqqqqqqqqqqqqpqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqylllslmq6y6",
+    "chainId": "1",
+    "version": 1,
+    "metaChainShardId": 4294967295,
+    "transactionProcessorMaxLookBehind": 1000
+  }
+}

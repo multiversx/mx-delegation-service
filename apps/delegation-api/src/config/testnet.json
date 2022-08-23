@@ -1,0 +1,10 @@
+{
+  "elrond": {
+    "elastic": "https://testnet-index.elrond.com",
+    "elrondApi": "https://testnet-api.elrond.com",
+    "gateway": "https://testnet-gateway.elrond.com",
+    "explorer": "https://testnet-explorer.elrond.com",
+    "chainID": "T",
+    "transactionProcessorMaxLookBehind": 10
+  }
+}

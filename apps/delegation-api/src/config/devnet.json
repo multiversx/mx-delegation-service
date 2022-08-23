@@ -1,0 +1,6 @@
+{
+  "elrond": {
+    "chainID": "D",
+    "transactionProcessorMaxLookBehind": 1000
+  }
+}

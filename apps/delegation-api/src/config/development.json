@@ -1,0 +1,5 @@
+{
+  "elrond": {
+    "transactionProcessorMaxLookBehind": 10
+  }
+}

@@ -1,0 +1,23 @@
+version: '3.4'
+services:
+  redis:
+    image: redis
+    container_name: delegation-api-cache
+    command: redis-server
+    ports:
+      - '6379:6379'
+    expose:
+      - '6379'
+  sentinel:
+    image: redis
+    environment:
+      - MASTER_NAME=localmaster
+      - QUORUM=1
+      - MASTER=redis
+    depends_on:
+      - redis
+    ports:
+      - 26379:26379
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf

@@ -1,0 +1,99 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Delegation API production build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install node_modules
+        run: yarn
+      - name: Build
+        run: |
+          yarn build
+
+          cp package.json dist/apps/delegation-api
+
+          cp yarn.lock dist/apps/delegation-api
+
+          cp apps/delegation-api/src/config/*  dist/apps/delegation-api/config
+      - name: Set environment variables
+        run: |
+          ARCHIVE_DELEGATION_API="delegation_api_latest.tgz"
+          BUILD_DIR=${GITHUB_WORKSPACE}/dist/
+
+          echo "ARCHIVE_DELEGATION_API=${ARCHIVE_DELEGATION_API}" >> $GITHUB_ENV
+          echo "BUILD_DIR=${BUILD_DIR}" >> $GITHUB_ENV
+      - name: Package
+        run: |
+          mkdir -p "${GITHUB_WORKSPACE}/artifacts"
+          cd ${BUILD_DIR}/apps
+
+          tar czvf "${GITHUB_WORKSPACE}/artifacts/${ARCHIVE_DELEGATION_API}" delegation-api/*
+      - name: Save artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: |
+            ${{ github.workspace }}/artifacts/*.tgz
+          if-no-files-found: error
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
+
+      - name: Upload artifacts to S3
+        run: |
+          aws s3 sync "${GITHUB_WORKSPACE}/artifacts" s3://delegation-api-builds
+
+  release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set environment variables
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+        # https://docs.github.com/en/free-pro-team@latest/actions/guides/storing-workflow-data-as-artifacts#downloading-or-deleting-artifacts
+        # A directory for each artifact is created using its name
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: assets
+
+      - name: Display structure of downloaded files
+        run: ls -R
+        working-directory: assets
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          hub release create --draft --message="v${VERSION}: draft from Github Actions" v${VERSION}
+          for i in $(find ./assets -name '*.tgz' -type f); do
+            hub release edit --attach=${i} --message="" v${VERSION}
+          done

@@ -1,0 +1,24 @@
+{
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/delegation-api/src",
+  "compilerOptions": {
+    "plugins": [
+      "@nestjs/swagger/plugin"
+    ],
+    "webpack": false,
+    "tsConfigPath": "apps/delegation-api/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/delegation-api",
+  "projects": {
+    "delegation-api": {
+      "type": "application",
+      "root": "apps/delegation-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/delegation-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/delegation-api/tsconfig.app.json"
+      }
+    }
+  }
+}
