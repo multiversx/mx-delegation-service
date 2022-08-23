@@ -9,7 +9,7 @@ import { ElrondProxyService } from '../elrond-communication/elrond-proxy.service
 import { ContractConfigResponseDto } from '../../../modules/delegation/dto/contract-config.dto';
 import asyncPool from 'tiny-async-pool';
 import { CacheWarmerService } from '../cache-warmer/cache-warmer.service';
-import { MetricsService } from '../metrics/metrics.service';
+import { ApiMetricsService } from '../metrics/api.metrics.service';
 import { ElrondElasticService } from '../elrond-communication/elrond-elastic.service';
 import { PluginService } from '../../plugins/plugin.service';
 
@@ -22,7 +22,7 @@ export class TransactionProcessorService {
     private readonly providerManager: ProviderManagerService,
     private readonly elrondProxyService: ElrondProxyService,
     private readonly cacheWarmerService: CacheWarmerService,
-    private readonly metricsService: MetricsService,
+    private readonly metricsService: ApiMetricsService,
     private readonly pluginService: PluginService,
     private readonly elrondElasticService: ElrondElasticService,
   ) {
@@ -34,14 +34,8 @@ export class TransactionProcessorService {
     await this.transactionProcessor.start({
       gatewayUrl: elrondConfig.gateway,
       maxLookBehind: elrondConfig.transactionProcessorMaxLookBehind,
-      onTransactionsReceived: async (shardId, nonce, transactions, statistics) => {
-        if (transactions.length === 0) {
-          return;
-        }
-        const validTransactions = transactions.filter(tx => tx.status === 'success');
-        asyncPool(4, validTransactions, async transaction => {
-          await this.handleTransactionByData(transaction);
-        })
+      onTransactionsReceived: async (_, __, transactions) => {
+        await this.onTransactionReceived(transactions);
       },
       getLastProcessedNonce: async (shardId) => {
         return await this.cacheManager.getLastProcessedNonce(shardId);
@@ -49,7 +43,17 @@ export class TransactionProcessorService {
       setLastProcessedNonce: async (shardId, nonce) => {
         await this.cacheManager.setLastProcessedNonce(shardId, nonce);
         this.metricsService.setTransactionProcessorLastNonce(shardId, nonce);
-      }
+      },
+    });
+  }
+
+  private onTransactionReceived(transactions: ShardTransaction[]) {
+    if (transactions.length === 0) {
+      return;
+    }
+    const validTransactions = transactions.filter(tx => tx.status === 'success');
+    asyncPool(4, validTransactions, async transaction => {
+      await this.handleTransactionByData(transaction);
     });
   }
 
@@ -198,11 +202,11 @@ export class TransactionProcessorService {
   }
 
   private async getContractConfig(contractAddress: string): Promise<ContractConfigResponseDto | undefined> {
-    const { returnData } = await this.elrondProxyService.getContractConfig(contractAddress);
-    if (!returnData) {
+    const result = await this.elrondProxyService.getContractConfig(contractAddress);
+    if (!result) {
       return;
     }
-    return ContractConfigResponseDto.fromContractConfig(returnData);
+    return ContractConfigResponseDto.fromContractConfig(result.getReturnDataParts());
   }
 
   private async isTransactionSuccessful(transaction: ShardTransaction): Promise<boolean> {

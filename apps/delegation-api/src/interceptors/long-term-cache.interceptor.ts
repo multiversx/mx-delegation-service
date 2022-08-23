@@ -1,13 +1,15 @@
-import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/internal/operators';
+import { Injectable, NestInterceptor, ExecutionContext, CallHandler, Inject } from '@nestjs/common';
+import { catchError, map, Observable } from 'rxjs';
 import { CacheManagerService } from '../common/services/cache-manager/cache-manager.service';
+import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { Logger } from 'winston';
 
 @Injectable()
 export class LongTermCacheInterceptor implements NestInterceptor {
 
   constructor(
-    private cacheManagerService: CacheManagerService
+    private cacheManagerService: CacheManagerService,
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -24,6 +26,11 @@ export class LongTermCacheInterceptor implements NestInterceptor {
         }
       ),
       catchError(async err => {
+        this.logger.error('Error getting long term cache', {
+          path: 'long-term-cache.interceptor.intercept',
+          exception: err.toString(),
+        });
+
         const cachedValue = await this.cacheManagerService.getLongTermCache('LONGTERM.' + request.url);
         return cachedValue ?? null;
       }),

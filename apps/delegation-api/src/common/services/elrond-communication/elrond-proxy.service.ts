@@ -1,34 +1,33 @@
-import { ProxyProvider, ContractFunction, Address } from '@elrondnetwork/erdjs';
+import { ContractFunction, Address, AddressValue } from '@elrondnetwork/erdjs';
 import { elrondConfig } from '../../../config';
 import { Inject, Injectable } from '@nestjs/common';
 import { Query } from '@elrondnetwork/erdjs/out/smartcontracts/query';
-import { Argument, NetworkConfig } from '@elrondnetwork/erdjs/out';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { NetworkStatus } from '@elrondnetwork/erdjs/out/networkStatus';
 import { CacheManagerService } from '../cache-manager/cache-manager.service';
-import { QueryResponse } from '@elrondnetwork/erdjs/out/smartcontracts';
-import { QueryResponseHelper } from '../../helpers';
 import BigNumber from 'bignumber.js';
+import { ContractQueryResponse, NetworkStatus, ProxyNetworkProvider, NetworkConfig } from '@elrondnetwork/erdjs-network-providers';
 
 @Injectable()
 export class ElrondProxyService {
-  private readonly proxy: ProxyProvider;
+  private readonly proxy: ProxyNetworkProvider;
   constructor(
     private cacheManager: CacheManagerService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {
-    this.proxy = new ProxyProvider(elrondConfig.gateway, 60000);
+    this.proxy = new ProxyNetworkProvider(elrondConfig.gateway, {
+      timeout: 60000,
+    });
   }
 
-  getService(): ProxyProvider {
+  getService(): ProxyNetworkProvider {
     return this.proxy;
   }
 
-  async getAllContractAddresses(): Promise<QueryResponse> {
+  async getAllContractAddresses(): Promise<ContractQueryResponse> {
     const cachedData = await this.cacheManager.getAllContractAddresses();
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData)
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const query =
@@ -40,17 +39,17 @@ export class ElrondProxyService {
     this.logger.info('getContractList', {
       path: 'elrond-proxy.service.getContractList',
       returnCode : result.returnCode,
-      returnMessage: result.returnMessage
+      returnMessage: result.returnMessage,
     });
 
-    await this.cacheManager.setAllContractAddresses(QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setAllContractAddresses(result.toJSON());
     return result;
   }
 
-  async getContractConfig(delegationContract: string): Promise<QueryResponse> {
+  async getContractConfig(delegationContract: string): Promise<ContractQueryResponse> {
     const cachedData = await this.cacheManager.getContractConfig(delegationContract);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const query =
@@ -63,71 +62,71 @@ export class ElrondProxyService {
       path: 'elrond-proxy.service.getContractConfig',
       delegationContract,
       returnCode : result.returnCode,
-      returnMessage: result.returnMessage
+      returnMessage: result.returnMessage,
     });
 
-    await this.cacheManager.setContractConfig(delegationContract, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setContractConfig(delegationContract, result.toJSON());
     return result;
   }
 
-  async getBlsKeys (delegationContract: string): Promise<QueryResponse> {
+  async getBlsKeys(delegationContract: string): Promise<ContractQueryResponse> {
     const { auctionContract } = elrondConfig;
     const networkStatus = await this.getNetworkStatus();
     const cachedData = await this.cacheManager.getBlsKeys(auctionContract, delegationContract, networkStatus.EpochNumber);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
     const query =
       new Query({
         address: new Address(auctionContract),
         func: new ContractFunction('getBlsKeysStatus'),
-        args: [Argument.fromPubkey(new Address(delegationContract))],
+        args: [new AddressValue(new Address(delegationContract))],
       });
     const result = await this.proxy.queryContract(query);
     this.logger.info('getBlsKeysStatus', {
       path: 'elrond-proxy.service.getBlsKeys',
       delegationContract,
       returnCode : result.returnCode,
-      returnMessage: result.returnMessage
+      returnMessage: result.returnMessage,
     });
 
-    await this.cacheManager.setBlsKeys(auctionContract, delegationContract, networkStatus.EpochNumber, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setBlsKeys(auctionContract, delegationContract, networkStatus.EpochNumber, result.toJSON());
     return result;
   }
 
-  async getClaimableRewards(address: string, delegationContract: string): Promise<QueryResponse> {
+  async getClaimableRewards(address: string, delegationContract: string): Promise<ContractQueryResponse> {
     const networkStatus = await this.getNetworkStatus();
     const cachedData = await this.cacheManager.getClaimableRewards(address, delegationContract, networkStatus.EpochNumber);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const result = await this.getUserContractData('getClaimableRewards', address, delegationContract);
-    await this.cacheManager.setClaimableRewards(address, delegationContract, networkStatus.EpochNumber, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setClaimableRewards(address, delegationContract, networkStatus.EpochNumber, result.toJSON());
     return result;
   }
 
-  async getUserUnBondable(address: string, delegationContract: string): Promise<QueryResponse> {
+  async getUserUnBondable(address: string, delegationContract: string): Promise<ContractQueryResponse> {
     const networkStatus = await this.getNetworkStatus();
     const cachedData = await this.cacheManager.getUserUnBondable(address, delegationContract, networkStatus.EpochNumber);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const result = await this.getUserContractData('getUserUnBondable', address, delegationContract);
-    await this.cacheManager.setUserUnBondable(address, delegationContract, networkStatus.EpochNumber, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setUserUnBondable(address, delegationContract, networkStatus.EpochNumber,result.toJSON());
     return result;
   }
 
-  async getUserActiveStake(delegationContract: string, address: string): Promise<QueryResponse> {
+  async getUserActiveStake(delegationContract: string, address: string): Promise<ContractQueryResponse> {
     const cachedData = await this.cacheManager.getUserActiveStake(address, delegationContract);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const result = await this.getUserContractData('getUserActiveStake', address, delegationContract);
 
-    await this.cacheManager.setUserActiveStake(address, delegationContract, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setUserActiveStake(address, delegationContract, result.toJSON());
     return result;
   }
 
@@ -136,7 +135,7 @@ export class ElrondProxyService {
       new Query({
         address: new Address(delegationContract),
         func: new ContractFunction(method),
-        args: [Argument.fromPubkey(new Address(address))],
+        args: [new AddressValue(new Address(address))],
       });
     const result = await this.proxy.queryContract(query);
     this.logger.info(method, {
@@ -145,21 +144,21 @@ export class ElrondProxyService {
       delegationContract,
       address,
       returnCode : result.returnCode,
-      returnMessage: result.returnMessage
+      returnMessage: result.returnMessage,
     });
-    return result
+    return result;
   }
 
-  async getGlobalDelegationMethod(method: string, delegationContract: string): Promise<QueryResponse> {
+  async getGlobalDelegationMethod(method: string, delegationContract: string): Promise<ContractQueryResponse> {
     const cachedData = await this.cacheManager.getProviderData(method, delegationContract);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const query =
       new Query({
         address: new Address(delegationContract),
-        func: new ContractFunction(method)
+        func: new ContractFunction(method),
       });
     const result = await this.proxy.queryContract(query);
     this.logger.info(method, {
@@ -167,57 +166,57 @@ export class ElrondProxyService {
       method,
       delegationContract,
       returnCode : result.returnCode,
-      returnMessage: result.returnMessage
+      returnMessage: result.returnMessage,
     });
-    await this.cacheManager.setProviderData(method, delegationContract, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setProviderData(method, delegationContract, result.toJSON());
     return result;
   }
 
-  async getContractMetaData (delegationContract: string): Promise<QueryResponse> {
+  async getContractMetaData (delegationContract: string): Promise<ContractQueryResponse> {
     const cachedData = await this.cacheManager.getContractMetadata(delegationContract);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const query =
       new Query({
         address: new Address(delegationContract),
-        func: new ContractFunction('getMetaData')
+        func: new ContractFunction('getMetaData'),
       });
     const result = await this.proxy.queryContract(query);
     this.logger.info('getMetaData', {
       path: 'elrond-proxy.service.getContractMetaData',
       delegationContract,
       returnCode : result.returnCode,
-      returnMessage: result.returnMessage
+      returnMessage: result.returnMessage,
     });
-    await this.cacheManager.setContractMetadata(delegationContract, false, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setContractMetadata(delegationContract, false, result.toJSON());
     return result;
   }
 
-  async getTotalCumulatedRewards(contract: string): Promise<QueryResponse> {
+  async getTotalCumulatedRewards(contract: string): Promise<ContractQueryResponse> {
     const networkStatus = await this.getNetworkStatus();
     const cachedData = await this.cacheManager.getTotalCumulatedRewards(contract, networkStatus.EpochNumber);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const result = await this.getGlobalDelegationMethod('getTotalCumulatedRewards', contract);
-    await this.cacheManager.setTotalCumulatedRewards(contract, networkStatus.EpochNumber, QueryResponseHelper.getDataForCache(result));
-    return result
+    await this.cacheManager.setTotalCumulatedRewards(contract, networkStatus.EpochNumber, result.toJSON());
+    return result;
   }
 
-  async getUserUnDelegatedList(address: string, delegationContract: string): Promise<QueryResponse> {
-    const networkStatus = await this.getNetworkStatus()
+  async getUserUnDelegatedList(address: string, delegationContract: string): Promise<ContractQueryResponse> {
+    const networkStatus = await this.getNetworkStatus();
     const cachedData = await this.cacheManager.getUserUndelegatedList(address, delegationContract, networkStatus.EpochNumber);
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
     const query =
       new Query({
         address: new Address(delegationContract),
         func: new ContractFunction('getUserUnDelegatedList'),
-        args: [Argument.fromPubkey(new Address(address))],
+        args: [new AddressValue(new Address(address))],
       });
     const result = await this.proxy.queryContract(query);
     this.logger.info('getUserUnDelegatedList', {
@@ -225,27 +224,27 @@ export class ElrondProxyService {
       delegationContract,
       address,
       returnCode : result.returnCode,
-      returnMessage: result.returnMessage
+      returnMessage: result.returnMessage,
     });
-    await this.cacheManager.setUserUndelegatedlist(address, delegationContract, networkStatus.EpochNumber, QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setUserUndelegatedlist(address, delegationContract, networkStatus.EpochNumber, result.toJSON());
     return result;
   }
 
-  async getQueueRegisterNonceAndRewardAddress(): Promise<QueryResponse> {
+  async getQueueRegisterNonceAndRewardAddress(): Promise<ContractQueryResponse> {
     const { auctionContract, blsRewardsAddress } = elrondConfig;
     const cachedData = await this.cacheManager.getQueueRegisterNonceAndRewardAddress();
     if (!!cachedData) {
-      return QueryResponse.fromHttpResponse(cachedData);
+      return ContractQueryResponse.fromHttpResponse(cachedData);
     }
 
     const query =
       new Query({
         address: new Address(blsRewardsAddress),
         func: new ContractFunction('getQueueRegisterNonceAndRewardAddress'),
-        caller: new Address(auctionContract)
+        caller: new Address(auctionContract),
       });
     const result = await this.proxy.queryContract(query);
-    await this.cacheManager.setQueueRegisterNonceAndRewardAddress(QueryResponseHelper.getDataForCache(result));
+    await this.cacheManager.setQueueRegisterNonceAndRewardAddress(result.toJSON());
     return result;
   }
 
@@ -257,7 +256,7 @@ export class ElrondProxyService {
     networkConfig = await this.proxy.getNetworkConfig();
     await this.cacheManager.setNetworkConfig(networkConfig);
 
-    return networkConfig
+    return networkConfig;
   }
 
   async getNetworkStatus(): Promise<NetworkStatus> {
@@ -277,7 +276,7 @@ export class ElrondProxyService {
       return accountBalance;
     }
     const account = await this.getService().getAccount(new Address(address));
-    await this.cacheManager.setAccountBalance(address, account.balance.valueOf());
-    return account.balance.valueOf();
+    await this.cacheManager.setAccountBalance(address, account.balance);
+    return account.balance;
   }
 }

@@ -7,6 +7,6 @@ import { HttpService } from './http.service';
   ],
   exports: [
     HttpService,
-  ]
+  ],
 })
 export class HttpModule {}

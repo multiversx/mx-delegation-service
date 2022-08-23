@@ -1,13 +1,12 @@
 import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import { NetworkConfig } from '@elrondnetwork/erdjs/out';
-import { NetworkStatus } from '@elrondnetwork/erdjs/out/networkStatus';
 import { cacheConfig } from '../../../config';
 import { Provider } from '../../../modules/providers/dto/providers.response.dto';
 import BigNumber from 'bignumber.js';
 import { UserContractDeploy } from '../../../models';
 import { AddressActiveContract } from '../../../models/address-active-contract';
 import { ContractFeeChanges } from '../../../models/contract-fee-changes';
+import { NetworkConfig, NetworkStatus } from '@elrondnetwork/erdjs-network-providers';
 
 const Keys = {
   allContractAddresses: () => 'allContractAddresses',
@@ -50,9 +49,9 @@ export class CacheManagerService {
    * @param addresses
    */
   async setAllContractAddresses(addresses: Record<string, any>): Promise<void> {
-    await this.set(Keys.allContractAddresses(), addresses, cacheConfig.getAllContractAddresses)
+    await this.set(Keys.allContractAddresses(), addresses, cacheConfig.getAllContractAddresses);
   }
-  async getAllContractAddresses(): Promise<Record<string, any>> {
+  getAllContractAddresses(): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.allContractAddresses());
   }
 
@@ -64,22 +63,17 @@ export class CacheManagerService {
    * getContractConfig
    * @param forContract
    */
-  async getContractConfig(forContract: string): Promise<Record<string, any>> {
+  getContractConfig(forContract: string): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.contractConfig(forContract));
   }
   async setContractConfig(forContract: string, data: Record<string, any>): Promise<void> {
-    await this.set(Keys.contractConfig(forContract), data, cacheConfig.getContractConfig)
+    await this.set(Keys.contractConfig(forContract), data, cacheConfig.getContractConfig);
   }
   async deleteContractConfig(contractAddress: string): Promise<void> {
     await this.cacheManager.del(Keys.contractConfig(contractAddress));
   }
 
-  /**
-   * getBlsKeysStatus
-   * @param auctionContract
-   * @param delegationContract
-   */
-  async getBlsKeys(auctionContract: string, delegationContract: string, epoch: number): Promise<Record<string, any>> {
+  getBlsKeys(auctionContract: string, delegationContract: string, epoch: number): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.blsKeys(auctionContract, delegationContract, epoch));
   }
   async setBlsKeys(auctionContract: string, delegationContract: string, epoch: number, data: Record<string, any>): Promise<void> {
@@ -93,7 +87,7 @@ export class CacheManagerService {
    * getMetaData
    * @param contract
    */
-  async getContractMetadata(contract: string): Promise<Record<string, any>> {
+  getContractMetadata(contract: string): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.metaData(contract));
   }
   async setContractMetadata(contract: string, isVerified: boolean, data: Record<string, any>): Promise<void> {
@@ -105,14 +99,14 @@ export class CacheManagerService {
    * KeyBase
    * @param url
    */
-  async getVerifyIdentity(url: string): Promise<boolean> {
+  getVerifyIdentity(url: string): Promise<boolean> {
     return this.cacheManager.get<boolean>(Keys.verifyIdentity(url));
   }
   async setVerifyIdentity(url: string, isVerified: boolean): Promise<void> {
     const ttl = isVerified ? cacheConfig.verifyIdentity.verified : cacheConfig.verifyIdentity.standard;
     await this.set(Keys.verifyIdentity(url), isVerified, ttl);
   }
-  async getProfile(identity: string): Promise<Record<string, any>> {
+  getProfile(identity: string): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.getProfile(identity));
   }
   async setProfile(identity: string, data: Record<string, any>): Promise<void> {
@@ -123,37 +117,37 @@ export class CacheManagerService {
    * GetTotalActiveStake for an contract
    *
    */
-  async getProviderData(method: string, contract: string): Promise<Record<string, any>> {
+  getProviderData(method: string, contract: string): Promise<Record<string, any>> {
     return this.cacheManager.get<Record<string, any>>(Keys.providerData(method, contract));
   }
-  async setProviderData<T>(method: string, contract: string, data: Record<string, any>): Promise<void> {
+  async setProviderData(method: string, contract: string, data: Record<string, any>): Promise<void> {
     await this.set(Keys.providerData(method, contract), data, cacheConfig[method]);
   }
 
-  async deleteGetNumNodes(contract: string) {
+  deleteGetNumNodes(contract: string) {
     return this.cacheManager.del(Keys.providerData('getNumNodes', contract));
   }
 
-  async getTotalCumulatedRewards(contract: string, epoch: number): Promise<Record<string, any>> {
-    return this.cacheManager.get(Keys.totalCumulatedRewards(contract, epoch))
+  getTotalCumulatedRewards(contract: string, epoch: number): Promise<Record<string, any>> {
+    return this.cacheManager.get(Keys.totalCumulatedRewards(contract, epoch));
   }
   async setTotalCumulatedRewards(contract: string, epoch: number, data: Record<string, any>): Promise<void> {
     await this.set(Keys.totalCumulatedRewards(contract, epoch), data, cacheConfig.getTotalCumulatedRewards);
   }
 
-  async getUserActiveStake(address: string, contract: string): Promise<Record<string, any>> {
+  getUserActiveStake(address: string, contract: string): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.userActiveStake(address, contract));
   }
 
-  async deleteUserActiveStake(address: string, contract: string) {
+  deleteUserActiveStake(address: string, contract: string) {
     return this.cacheManager.del(Keys.userActiveStake(address, contract));
   }
 
-  async setUserActiveStake(address: string, contract: string, data: Record<string, any>) {
+  setUserActiveStake(address: string, contract: string, data: Record<string, any>) {
     return this.set(Keys.userActiveStake(address, contract), data, cacheConfig.getUserActiveStake);
   }
 
-  async getUserUnBondable(address: string, contract: string, epoch: number): Promise<Record<string, any>> {
+  getUserUnBondable(address: string, contract: string, epoch: number): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.userUnBondable(address, contract, epoch));
   }
   async setUserUnBondable(address: string, contract: string, epoch: number, data: Record<string, any>): Promise<void> {
@@ -163,7 +157,7 @@ export class CacheManagerService {
     await this.cacheManager.del(Keys.userUnBondable(address, contract, epoch));
   }
 
-  async getClaimableRewards(address: string, contract: string, epoch: number): Promise<Record<string, any>> {
+  getClaimableRewards(address: string, contract: string, epoch: number): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.claimableRewards(address, contract, epoch));
   }
   async setClaimableRewards(address: string, contract: string, epoch: number, data: Record<string, any>): Promise<void> {
@@ -177,7 +171,7 @@ export class CacheManagerService {
    * User Undelegated list
    *
    */
-  async getUserUndelegatedList(address: string, contract: string, epoch: number): Promise<Record<string, any>> {
+  getUserUndelegatedList(address: string, contract: string, epoch: number): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.userUndelegatedList(address, contract, epoch));
   }
   async setUserUndelegatedlist(address: string, contract: string, epoch: number, data: Record<string, any>): Promise<void> {
@@ -188,7 +182,7 @@ export class CacheManagerService {
     await this.cacheManager.del(Keys.userUndelegatedList(address, contract, epoch));
   }
 
-  async getUndelegatedExpireTime(address: string, contract: string, amount: string, originalRemainingEpoch: number, epoch: number): Promise<string> {
+  getUndelegatedExpireTime(address: string, contract: string, amount: string, originalRemainingEpoch: number, epoch: number): Promise<string> {
     return this.cacheManager.get<string>(Keys.undelegatedExpiryTime(address, contract, amount, originalRemainingEpoch, epoch));
   }
   async setUndelegatedExpireTime(
@@ -205,7 +199,7 @@ export class CacheManagerService {
     await this.set(Keys.undelegatedExpiryTime(address, contract, amount, originalRemainingEpoch, epoch), expireDate, parseInt(ttlSeconds.toFixed()));
   }
 
-  async getQueueRegisterNonceAndRewardAddress(): Promise<Record<string, any>> {
+  getQueueRegisterNonceAndRewardAddress(): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.getQueueRegisterNonceAndRewardAddress());
   }
   async setQueueRegisterNonceAndRewardAddress(data: Record<string, any>): Promise<void> {
@@ -217,14 +211,14 @@ export class CacheManagerService {
   /** All providers
    *
    */
-  async getAllProviders(): Promise<Provider[]> {
+  getAllProviders(): Promise<Provider[]> {
     return this.cacheManager.get<Provider[]>(Keys.allProviders());
   }
   async setAllProviders(providers: Provider[]): Promise<void> {
     await this.set(Keys.allProviders(), providers, cacheConfig.allProviders);
   }
 
-  async getProviderAPR(contract: string, serviceFee: number): Promise<number> {
+  getProviderAPR(contract: string, serviceFee: number): Promise<number> {
     return this.cacheManager.get<number>(Keys.providerApr(contract, serviceFee));
   }
   async setProviderAPR(contract: string, serviceFee: number, data: number) {
@@ -238,11 +232,11 @@ export class CacheManagerService {
    * Network config
    * @param networkConfig
    */
-  async setNetworkConfig(networkConfig: NetworkConfig): Promise<void> {
+  setNetworkConfig(networkConfig: NetworkConfig): Promise<void> {
     return this.set(Keys.networkConfig(),
      {
        ...networkConfig,
-       TopUpRewardsGradientPointString: networkConfig.TopUpRewardsGradientPoint.toString()
+       TopUpRewardsGradientPointString: networkConfig.TopUpRewardsGradientPoint.toString(),
      },
      cacheConfig.networkConfig);
   }
@@ -254,7 +248,7 @@ export class CacheManagerService {
     return result;
   }
 
-  async getNetworkStake(): Promise<Record<string, any>> {
+  getNetworkStake(): Promise<Record<string, any>> {
     return this.cacheManager.get<Record<string, any>>(Keys.networkStake());
   }
   async setNetworkStake(data: Record<string, any>): Promise<void> {
@@ -264,15 +258,15 @@ export class CacheManagerService {
    * Network status
    * @param networkStatus
    */
-  async setNetworkStatus(networkStatus: NetworkStatus): Promise<void> {
+  setNetworkStatus(networkStatus: NetworkStatus): Promise<void> {
     return this.set(Keys.networkStatus(), networkStatus, cacheConfig.networkStatus);
   }
 
-  async getNetworkStatus(): Promise<NetworkStatus> {
+  getNetworkStatus(): Promise<NetworkStatus> {
     return this.cacheManager.get<NetworkStatus>(Keys.networkStatus());
   }
 
-  async setAccountBalance(account: string, acountBalance: BigNumber): Promise<void> {
+  setAccountBalance(account: string, acountBalance: BigNumber): Promise<void> {
     return this.set(Keys.accountBalance(account), acountBalance.toString(10), cacheConfig.ownerAccount);
   }
 
@@ -284,47 +278,47 @@ export class CacheManagerService {
     return null;
   }
 
-  async getLongTermCache(key: string): Promise<any> {
+  getLongTermCache(key: string): Promise<any> {
     return this.cacheManager.get(key);
   }
 
-  async setLongTermCache(key: string, value: any): Promise<void>{
+  setLongTermCache(key: string, value: any): Promise<void>{
     return this.set(key, value, cacheConfig.longTermCache);
   }
 
-  async getLastProcessedNonce(shardId: number): Promise<number | undefined> {
+  getLastProcessedNonce(shardId: number): Promise<number | undefined> {
     return this.cacheManager.get(Keys.lastProcessedNonceForShard(shardId));
   }
   async setLastProcessedNonce(shardId: number, nonce: number): Promise<any> {
     return await this.set(Keys.lastProcessedNonceForShard(shardId), nonce, 3600 * 24 * 7); // one week
   }
 
-  async getNewContractCreator(creator: string): Promise<boolean | undefined> {
+  getNewContractCreator(creator: string): Promise<boolean | undefined> {
     return this.cacheManager.get(Keys.newContractCreator(creator));
   }
   async setNewContractCreator(creator: string): Promise<any> {
     return await this.set(Keys.newContractCreator(creator), true, 60); // one minute
   }
 
-  async getIsContractDeployedByAddress(contract: string, address: string): Promise<boolean | undefined> {
+  getIsContractDeployedByAddress(contract: string, address: string): Promise<boolean | undefined> {
     return this.cacheManager.get(Keys.isContractDeployedByAddress(contract, address));
   }
   async setIsContractDeployedByAddress(contract: string, address: string, isDeployed: boolean): Promise<any> {
-    const ttl = isDeployed ? cacheConfig.isContractDeployedByAddress.true : cacheConfig.isContractDeployedByAddress.false
+    const ttl = isDeployed ? cacheConfig.isContractDeployedByAddress.true : cacheConfig.isContractDeployedByAddress.false;
     return await this.set(Keys.isContractDeployedByAddress(contract, address), isDeployed, ttl);
   }
-  async deleteIsContractDeployedByAddress(contract: string, address: string) {
+  deleteIsContractDeployedByAddress(contract: string, address: string) {
     return this.cacheManager.del(Keys.isContractDeployedByAddress(contract, address));
   }
 
-  async getAddressContractDeploys(): Promise<UserContractDeploy[]> {
+  getAddressContractDeploys(): Promise<UserContractDeploy[]> {
     return this.cacheManager.get(Keys.addressContractDeploys());
   }
   async setAddressContractDeploys(userContractDeploys: UserContractDeploy[]): Promise<any> {
     return await this.set(Keys.addressContractDeploys(), userContractDeploys, cacheConfig.userContractDeploys);
   }
 
-  async getAddressActiveContracts(address: string): Promise<AddressActiveContract[]> {
+  getAddressActiveContracts(address: string): Promise<AddressActiveContract[]> {
     return this.cacheManager.get(Keys.addressActiveContracts(address));
   }
   async setAddressActiveContracts(address: string, contracts: AddressActiveContract[]): Promise<void> {
@@ -334,14 +328,14 @@ export class CacheManagerService {
     await this.cacheManager.del(Keys.addressActiveContracts(address));
   }
 
-  async getContractFeeChange(forContract: string): Promise<ContractFeeChanges> {
+  getContractFeeChange(forContract: string): Promise<ContractFeeChanges> {
     return this.cacheManager.get(Keys.contractFeeChanges(forContract));
   }
   async setContractFeeChange(forContract: string, data: ContractFeeChanges): Promise<void> {
-    await this.set(Keys.contractFeeChanges(forContract), data, cacheConfig.getContractFeeChanges)
+    await this.set(Keys.contractFeeChanges(forContract), data, cacheConfig.getContractFeeChanges);
   }
 
-  private async set(key: string, value: any, ttl: number) {
+  private set(key: string, value: any, ttl: number) {
     if (!value) {
       return;
     }

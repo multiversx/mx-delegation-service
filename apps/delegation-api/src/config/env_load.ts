@@ -12,4 +12,4 @@ export const envload = () => {
       dotenv.config({ path: '.env' });
       break;
   }
-}
+};

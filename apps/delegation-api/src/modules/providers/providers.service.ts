@@ -130,7 +130,7 @@ export class ProvidersService {
           exception: e.toString(),
         });
       }
-    })
+    });
   }
 
   private async isContractOwnerBellowStakedRequiredThreshold(contractAddress: string, ownerAddress: string) {
@@ -162,14 +162,14 @@ export class ProvidersService {
       totalUnStaked,
       totalCumulatedRewards,
       numUsers,
-      numNodes
+      numNodes,
     ] =
       await Promise.all([
         this.getTotalContractAmount('getTotalActiveStake', contract),
         this.getTotalContractAmount('getTotalUnStaked', contract),
         this.getTotalCumulatedRewards(contract),
         this.getTotalContractAmount('getNumUsers', contract),
-        this.getTotalContractAmount('getNumNodes', contract)
+        this.getTotalContractAmount('getNumNodes', contract),
       ]);
 
     return new GlobalContractDataResponseDto(
@@ -227,7 +227,7 @@ export class ProvidersService {
       stakingProvider.checkCapOnRedelegate
     ) {
       stakingProvider.maxRedelegateAmountAllowed =
-        stakingProvider.maxDelegateAmountAllowed
+        stakingProvider.maxDelegateAmountAllowed;
     }
 
     return stakingProvider;
@@ -235,14 +235,15 @@ export class ProvidersService {
 
   private async getContractConfig(contract: string): Promise<ContractConfigResponseDto> {
     try {
-      const { returnData } = await this.elrondProxyService.getContractConfig(contract);
+      const result = await this.elrondProxyService.getContractConfig(contract);
 
-      if (!returnData) {
+      if (!result) {
         return null;
       }
 
-      const response = ContractConfigResponseDto.fromContractConfig(returnData);
+      const response = ContractConfigResponseDto.fromContractConfig(result.getReturnDataParts());
 
+      console.log(response);
       response.aprValue = await this.delegationAprService.getProviderAPR(contract, Number(response.serviceFee));
       response.apr = response.aprValue.toFixed(2);
 

@@ -15,6 +15,6 @@ export class UnauthorizedError extends UnauthorizedException {
       message,
       error,
       statusCode: HttpStatus.UNAUTHORIZED,
-    })
+    });
   }
 }

@@ -5,7 +5,7 @@ import { KeyBaseService } from '../elrond-communication/keybase.service';
 import { BadRequest } from '../../errors';
 import { ErrorCodes } from '../../../utils';
 import { ProviderWithData } from '../../../modules/providers/dto/provider-with-data.dto';
-import asyncPool from 'tiny-async-pool'
+import asyncPool from 'tiny-async-pool';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 
@@ -19,7 +19,7 @@ export class ProviderManagerService {
   }
 
   async getAllProvidersWithData(contracts: string[]): Promise<ProviderWithData[]> {
-    const providersWitInfo = await asyncPool(4, contracts, contract => this.getProviderInfo(contract))
+    const providersWitInfo = await asyncPool(4, contracts, contract => this.getProviderInfo(contract));
 
     return providersWitInfo
       .filter(provider => !!provider)
@@ -34,7 +34,8 @@ export class ProviderManagerService {
         return providerInfo;
       }
 
-      const identityKey = contractMeta.returnData[2]?.asString;
+      const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
+      const identityKey = returnBuffers[2]?.asString();
 
       const verify = await this.keyBaseService.verifyIdentity(identityKey, contract);
       if (!verify) {
@@ -85,13 +86,13 @@ export class ProviderManagerService {
   async getAllContractAddresses(): Promise<string[]> {
     try {
       const scResponse = await this.elrondProxyService.getAllContractAddresses();
-      const data = scResponse.returnData;
+      const data: Buffer[] = scResponse.getReturnDataParts();
       if (!data) {
         return null;
       }
 
       return data.map((contract) => {
-        return contract.asHex.hexToBech32()
+        return contract.asHex().hexToBech32();
       });
     } catch (e) {
       this.logger.error('Error getting Contract addresses', {

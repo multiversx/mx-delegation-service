@@ -3,7 +3,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ServicesModule } from '../services.module';
 import { TransactionProcessorService } from './transaction-processor.service';
 import { CacheWarmerModule } from '../cache-warmer/cache-warmer.module';
-import { MetricsModule } from '../metrics/metrics.module';
+import { ApiMetricsModule } from '../metrics/api.metrics.module';
 import { ProvidersModule } from '../../../modules/providers/providers.module';
 import { PluginModule } from '../../../plugins/plugin.module';
 
@@ -12,7 +12,7 @@ import { PluginModule } from '../../../plugins/plugin.module';
     ScheduleModule.forRoot(),
     ServicesModule,
     CacheWarmerModule,
-    MetricsModule,
+    ApiMetricsModule,
     ProvidersModule,
     PluginModule,
   ],

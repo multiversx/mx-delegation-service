@@ -1,9 +1,9 @@
-import { ArgumentMetadata, HttpException, HttpStatus, PipeTransform } from '@nestjs/common';
+import { HttpException, HttpStatus, PipeTransform } from '@nestjs/common';
 
 export class ParseOptionalEnumPipe<T extends { [name: string]: any }> implements PipeTransform<string | undefined, Promise<string | undefined>> {
   constructor(private readonly type: T) {}
 
-  transform(value: string | undefined, _: ArgumentMetadata): Promise<string | undefined> {
+  transform(value: string | undefined): Promise<string | undefined> {
     return new Promise(resolve => {
       if (value === undefined || value === '') {
         return resolve(undefined);

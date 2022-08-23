@@ -24,8 +24,8 @@ export class CacheWarmerService implements OnModuleInit {
       return {
         userAddress: tx.sender,
         txHash: tx.hash,
-        contract: contractAddress?.contract
-      }
+        contract: contractAddress?.contract,
+      };
     });
 
     await this.cacheManager.setAddressContractDeploys(userContractMap);

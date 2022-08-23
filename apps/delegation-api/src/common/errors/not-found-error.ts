@@ -15,6 +15,6 @@ export class NotFoundError extends NotFoundException {
       message,
       error,
       statusCode: HttpStatus.NOT_FOUND,
-    })
+    });
   }
 }

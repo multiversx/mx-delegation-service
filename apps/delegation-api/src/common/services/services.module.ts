@@ -15,7 +15,7 @@ import { CacheWarmerModule } from './cache-warmer/cache-warmer.module';
       keyPrefix: process.env.REDIS_PREFIX,
       sentinels: [{
         host: process.env.SENTINEL_URL,
-        port: parseInt(process.env.SENTINEL_PORT)
+        port: parseInt(process.env.SENTINEL_PORT),
       }],
       name: process.env.SENTINEL_NAME,
     }),
@@ -23,7 +23,7 @@ import { CacheWarmerModule } from './cache-warmer/cache-warmer.module';
     CacheManagerModule,
     ElrondCommunicationModule,
     ApiConfigModule,
-    CacheWarmerModule
-  ]
+    CacheWarmerModule,
+  ],
 })
 export class ServicesModule {}

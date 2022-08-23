@@ -19,7 +19,7 @@ class Main {
     if (process.env.DELEGATION_API_ENABLE === 'true') {
       const express = new Express();
       await express.init();
-      const server = await express.listen(process.env.PORT);
+      await express.listen(process.env.PORT);
       console.log('Delegation API Server is running at PORT: %s', process.env.PORT);
     }
 

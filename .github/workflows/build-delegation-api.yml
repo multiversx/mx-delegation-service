@@ -11,7 +11,7 @@ on:
 
 permissions:
   contents: write
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,6 +40,8 @@ jobs:
           cp yarn.lock dist/apps/delegation-api
 
           cp apps/delegation-api/src/config/*  dist/apps/delegation-api/config
+      - name: Lint
+        run: yarn lint
       - name: Set environment variables
         run: |
           ARCHIVE_DELEGATION_API="delegation_api_latest.tgz"

@@ -24,8 +24,8 @@ export class InfoController {
         claimRewards: 6000000,
         reDelegateRewards: 12000000,
 
-      }
-    }
+      },
+    };
   }
 
 }

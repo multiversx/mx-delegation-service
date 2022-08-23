@@ -1,19 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
-import { MetricsService } from './metrics.service';
+import { MetricsService } from '@elrondnetwork/erdnest';
 
 @Controller()
-export class MetricsController {
+export class ApiMetricsController {
   constructor(
     private readonly metricsService: MetricsService
   ) {}
   
   @Get('/metrics')
-  async getMetrics(): Promise<string> {
+  getMetrics(): Promise<string> {
     return this.metricsService.getMetrics();
   }
-  
-  @Get('/hello')
-  async getHello(): Promise<string> {
-    return 'hello';
-  }
+
 }

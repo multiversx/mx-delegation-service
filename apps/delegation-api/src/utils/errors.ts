@@ -14,5 +14,5 @@ export enum DelegationContract {
  * All error codes returned
  */
 export const ErrorCodes = {
-  ...Generic, ...DelegationContract
-}
+  ...Generic, ...DelegationContract,
+};

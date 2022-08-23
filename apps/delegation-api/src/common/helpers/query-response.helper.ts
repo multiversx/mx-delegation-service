@@ -1,14 +1,12 @@
-import { QueryResponse } from '@elrondnetwork/erdjs/out/smartcontracts';
+import { ContractQueryResponse } from '@elrondnetwork/erdjs-network-providers';
 
 export class QueryResponseHelper {
-  static handleQueryAmountResponse(response: QueryResponse): string {
-    return response?.returnData[0]?.asBigInt.toFixed();
+
+  static handleQueryAmountResponse(response: ContractQueryResponse): string {
+    if (!response?.returnData[0]) {
+      return '0';
+    }
+    return response.getReturnDataParts()[0].asFixed();
   }
 
-  static getDataForCache(queryResponse: QueryResponse) {
-    return {
-      ...queryResponse,
-      returnData: queryResponse.returnData.map(r => r.asBase64)
-    };
-  }
 }

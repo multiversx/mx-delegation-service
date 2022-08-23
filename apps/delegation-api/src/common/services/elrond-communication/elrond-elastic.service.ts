@@ -29,7 +29,7 @@ export class ElrondElasticService {
       requestTimeout: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       agent: {
         keepAlive: true,
-        keepAliveMsecs: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM)
+        keepAliveMsecs: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       },
     });
 
@@ -38,7 +38,7 @@ export class ElrondElasticService {
       requestTimeout: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       agent: {
         keepAlive: true,
-        keepAliveMsecs: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM)
+        keepAliveMsecs: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       },
     });
 
@@ -47,9 +47,9 @@ export class ElrondElasticService {
       requestTimeout: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       agent: {
         keepAlive: true,
-        keepAliveMsecs: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM)
+        keepAliveMsecs: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       },
-    })
+    });
   }
 
   async getStakingContractDeploysTxHashes(): Promise<ContractDeployTx[]> {
@@ -60,27 +60,27 @@ export class ElrondElasticService {
           'must': [
             {
               'match': {
-                'deployer': stakingContractAddress
-              }
-            }
-          ]
+                'deployer': stakingContractAddress,
+              },
+            },
+          ],
         },
-      }
+      },
     };
     try {
       const response = await this.scDeploysClient.search({
-        body
+        body,
       });
       return response.body.hits.hits.map(hit => {
         return {
           txHash: hit._source?.deployTxHash,
-          contract: hit._id
-        }
+          contract: hit._id,
+        };
       });
     } catch (e) {
       this.logger.error('Fail to getStakingContractDeploysTxHashes', {
         path: 'elrond-elastic.service.getStakingContractDeploysTxHashes',
-        exception: e.toString()
+        exception: e.toString(),
       });
       throw e;
     }
@@ -90,25 +90,25 @@ export class ElrondElasticService {
     const body = {
       query: {
         ids: {
-          values: txHashes
-        }
-      }
-    }
+          values: txHashes,
+        },
+      },
+    };
     try {
       const response = await this.transactionsClient.search({
-        body
+        body,
       });
 
       return response.body.hits?.hits?.map(hit => {
         return {
           hash: hit._id,
-          ...hit._source
-        }
+          ...hit._source,
+        };
       });
     } catch (e) {
       this.logger.error('Fail to getTransactionByHashes', {
         path: 'elrond-elastic.service.getTransactionByHashes',
-        exception: e.toString()
+        exception: e.toString(),
       });
       throw e;
     }
@@ -122,22 +122,22 @@ export class ElrondElasticService {
           'must': [
             {
               'match': {
-                'address': address
-              }
-            }
-          ]
+                'address': address,
+              },
+            },
+          ],
         },
-      }
+      },
     };
     try {
       const response = await this.delegatorsClient.search({
-        body
+        body,
       });
       return response.body.hits.hits.map(hit => hit._source);
     } catch (e) {
       this.logger.error('Fail to getDelegationsForAddress', {
         path: 'elrond-elastic.service.getDelegationsForAddress',
-        exception: e.toString()
+        exception: e.toString(),
       });
       throw e;
     }
@@ -150,21 +150,21 @@ export class ElrondElasticService {
           'must': [
             {
               'match': {
-                'address': address
-              }
+                'address': address,
+              },
             },
             {
               'match': {
-                'contract': contract
-              }
-            }
-          ]
+                'contract': contract,
+              },
+            },
+          ],
         },
-      }
+      },
     };
     try {
       const response = await this.delegatorsClient.search({
-        body
+        body,
       });
       if (response.body.hits.hits.length) {
         return response.body.hits.hits[0]._source;
@@ -174,7 +174,7 @@ export class ElrondElasticService {
     } catch (e) {
       this.logger.error('Fail to getDelegatorsForAddress', {
         path: 'elrond-elastic.service.getDelegatorsForAddress',
-        exception: e.toString()
+        exception: e.toString(),
       });
       throw e;
     }
@@ -189,16 +189,16 @@ export class ElrondElasticService {
           'must': [
             {
               'match': {
-                'contract': contract
-              }
-            }
-          ]
+                'contract': contract,
+              },
+            },
+          ],
         },
-      }
+      },
     };
     try {
       const response = await this.delegatorsClient.search({
-        body
+        body,
       });
       if (response.body.hits.hits.length) {
         return response.body.hits.hits.map(e => e._source);
@@ -208,7 +208,7 @@ export class ElrondElasticService {
     } catch (e) {
       this.logger.error('Fail to getDelegationsForContract', {
         path: 'elrond-elastic.service.getDelegationsForContract',
-        exception: e.toString()
+        exception: e.toString(),
       });
       throw e;
     }

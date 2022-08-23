@@ -21,13 +21,13 @@ import * as redisStore from 'cache-manager-ioredis';
       prefix: process.env.REDIS_PREFIX,
       sentinels: [{
         host: process.env.SENTINEL_URL,
-        port: parseInt(process.env.SENTINEL_PORT)
+        port: parseInt(process.env.SENTINEL_PORT),
       }],
       name: process.env.SENTINEL_NAME,
     }),
   ],
   exports: [
-    DelegationService
-  ]
+    DelegationService,
+  ],
 })
 export class DelegationModule {}

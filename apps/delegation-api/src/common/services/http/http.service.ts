@@ -106,8 +106,8 @@ export class HttpService {
           } catch (e) {
             return data;
           }
-        }
-      ]
+        },
+      ],
     };
   }
 

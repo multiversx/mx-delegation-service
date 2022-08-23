@@ -1,8 +1,7 @@
 import { CallHandler, ExecutionContext, Inject, Injectable, NestInterceptor } from '@nestjs/common';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError,catchError } from 'rxjs';
 import { WINSTON_MODULE_PROVIDER} from 'nest-winston';
 import { Logger } from 'winston';
-import { catchError, tap } from 'rxjs/internal/operators';
 import { randomStringGenerator } from '@nestjs/common/utils/random-string-generator.util';
 
 @Injectable()
@@ -27,25 +26,19 @@ export class LoggerInterceptor implements NestInterceptor {
     this.logger.defaultMeta = {
       tag: randomStringGenerator(),
       platform: platformHeader,
-      appVersion: versionHeader
+      appVersion: versionHeader,
     };
 
     return next.handle().pipe(
-      tap(() =>
-          setTimeout(() => {this.logHttp(context)}, 0),
-      ),
       catchError((err): Observable<any> => {
         if (!err.status || err.status === 500) {
           setTimeout(() => {
-            this.logException(err, context)
+            this.logException(err, context);
           }, 0);
         }
 
         return throwError(err);
       }));
-  }
-
-  logHttp(context: ExecutionContext){
   }
 
   logException(err: any, context: ExecutionContext){
@@ -63,7 +56,7 @@ export class LoggerInterceptor implements NestInterceptor {
       response: response.statusCode,
       platform: platformHeader,
       appVersion: versionHeader,
-      exception: err.toString()
+      exception: err.toString(),
     });
   }
 }

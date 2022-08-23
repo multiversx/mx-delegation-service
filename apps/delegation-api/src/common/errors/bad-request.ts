@@ -15,6 +15,6 @@ export class BadRequest extends BadRequestException {
       message,
       error,
       statusCode: HttpStatus.BAD_REQUEST,
-    })
+    });
   }
 }

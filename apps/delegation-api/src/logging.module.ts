@@ -22,20 +22,20 @@ const logLevel = !!process.env.LOG_LEVEL? process.env.LOG_LEVEL: 'error';
 
 if (!!process.env.ELASTICSEARCH_URL) {
   const clientOpts =  {
-      node: process.env.ELASTICSEARCH_URL
+      node: process.env.ELASTICSEARCH_URL,
     };
   if (process.env.ELASTICSEARCH_USERNAME && process.env.ELASTICSEARCH_PASSWORD) {
     clientOpts['auth'] = {
         username: process.env.ELASTICSEARCH_USERNAME,
-        password: process.env.ELASTICSEARCH_PASSWORD
+        password: process.env.ELASTICSEARCH_PASSWORD,
     };
   }
   logTransports.push(
     new ElasticsearchTransport({
       level: logLevel,
-      clientOpts
+      clientOpts,
     })
-  )
+  );
 }
 
 if (!!process.env.LOG_FILE) {
@@ -43,7 +43,7 @@ if (!!process.env.LOG_FILE) {
     filename: process.env.LOG_FILE,
     dirname: 'logs',
     maxsize: 100000,
-    level: logLevel
+    level: logLevel,
   }));
 }
 
@@ -58,10 +58,10 @@ if (!!process.env.LOG_FILE) {
       provide: APP_INTERCEPTOR,
       useClass: LoggerInterceptor,
     },
-    LoggerInterceptor
+    LoggerInterceptor,
   ],
   exports: [
     WinstonModule,
-  ]
+  ],
 })
 export class LoggingModule {}

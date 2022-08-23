@@ -6,9 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { NestInterceptor, ValidationPipe } from '@nestjs/common';
-import { MetricsInterceptor } from './interceptors/metrics.interceptor';
-import { MetricsService } from './common/services/metrics/metrics.service';
-import { FieldsInterceptor } from './interceptors/fields.interceptor';
+import { LoggingInterceptor, MetricsService, FieldsInterceptor } from '@elrondnetwork/erdnest';
 
 /**
  * Wrapper for Express server
@@ -39,7 +37,7 @@ export class Express {
     const corsOrigin = process.env.CORS_ORIGINS.split(',').map(item => new RegExp(item)) ?? [];
 
     app.enableCors({
-      origin: corsOrigin
+      origin: corsOrigin,
     });
 
     if (process.env.NODE_ENV !== 'production') {
@@ -59,8 +57,8 @@ export class Express {
 
 
     const globalInterceptors: NestInterceptor[] = [];
-    globalInterceptors.push(new MetricsInterceptor(metricsService));
-    globalInterceptors.push(new FieldsInterceptor())
+    globalInterceptors.push(new LoggingInterceptor(metricsService));
+    globalInterceptors.push(new FieldsInterceptor());
     app.useGlobalInterceptors(...globalInterceptors);
 
 
@@ -90,7 +88,7 @@ export class Express {
     httpServer.keepAliveTimeout = parseInt(
       process.env.KEEPALIVE_TIMEOUT_UPSTREAM,
     );
-  };
+  }
 
   /**
    * Return the express instance

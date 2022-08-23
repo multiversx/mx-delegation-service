@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { MetricsController } from './common/services/metrics/metrics.controller';
-import { MetricsModule } from './common/services/metrics/metrics.module';
+import { ApiMetricsController } from './common/services/metrics/api.metrics.controller';
 import { ApiConfigModule } from './common/services/api-config/api.config.module';
+import { ApiMetricsModule } from './common/services/metrics/api.metrics.module';
 
 
 @Module({
   imports: [
     ApiConfigModule,
-    MetricsModule
+    ApiMetricsModule,
   ],
   controllers: [
-    MetricsController,
+    ApiMetricsController,
   ],
 })
 export class PrivateAppModule {}
