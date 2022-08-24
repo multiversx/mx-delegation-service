@@ -7,7 +7,6 @@ declare global {
     base64ToHex(): string;
     base64ToBech32(): string;
     hexToBech32(): string;
-    bech32ToHex(): string;
     hexBigNumberToString(): string;
     makeId(length: number): string;
     hexToNumber(): number;
@@ -15,17 +14,14 @@ declare global {
   }
 }
 String.prototype.base64ToUtf8 = function () {
-  const buffer = Buffer.from(this, 'base64')
-  return buffer.toString('utf-8')
-}
+  const buffer = Buffer.from(this, 'base64');
+  return buffer.toString('utf-8');
+};
 String.prototype.base64ToHex = function () {
   const buffer = Buffer.from(this, 'base64');
   return buffer.toString('hex');
 };
 
-String.prototype.bech32ToHex = function () {
-  return (new Account(Address.fromBech32(this)).address.hex());
-};
 String.prototype.base64ToBech32 = function () {
   const address = this.base64ToHex();
   return address.hexToBech32();
@@ -55,4 +51,4 @@ String.prototype.makeId = function (length) {
 String.prototype.hexBigNumberToString = function () {
   return (new BigNumber(this, 16).toString(10)).toString();
 };
-export {}
+export {};

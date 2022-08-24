@@ -9,7 +9,7 @@ export const elrondConfig = {
   elrondApi: process.env.ELROND_API,
   gateway: process.env.ELROND_GATEWAY,
   explorer: process.env.ELROND_EXPLORER,
-}
+};
 /**
  * Caching time config.
  * The values are in seconds

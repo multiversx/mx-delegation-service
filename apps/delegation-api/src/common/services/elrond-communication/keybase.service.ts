@@ -37,7 +37,7 @@ export class KeyBaseService extends HttpService {
     super();
   }
 
-  async get<T = never, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
+  get<T = never, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
     return this.httpService.get(
       url,
       {
@@ -47,12 +47,12 @@ export class KeyBaseService extends HttpService {
     );
   }
 
-  async head<T = never, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
+  head<T = never, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
     return this.httpService.head(
       url,
       {
         ...config,
-        ...this.getConfig()
+        ...this.getConfig(),
       }
     );
   }
@@ -71,15 +71,15 @@ export class KeyBaseService extends HttpService {
     try {
       const response = await this.head(url, {
         transformResponse: () => {
-          return {}
-        }
+          return {};
+        },
       });
 
       this.logger.info('verifyIdentity', {
         path: 'keybase.service.verifyIdentity',
         identity,
         address,
-        statusCode: response.status
+        statusCode: response.status,
       });
 
       if (response.status == 200) {
@@ -91,7 +91,7 @@ export class KeyBaseService extends HttpService {
         path: 'keybase.service.verifyIdentity',
         identity,
         address,
-        exception: e.toString()
+        exception: e.toString(),
       });
       return true;
     }
@@ -106,7 +106,7 @@ export class KeyBaseService extends HttpService {
     }
     try {
       const response = await this.get(`_/api/1.0/user/lookup.json?username=${identity}`, {
-        baseURL: this.profileUrl
+        baseURL: this.profileUrl,
       });
 
       await this.cacheManager.setProfile(identity, response.data);
@@ -115,7 +115,7 @@ export class KeyBaseService extends HttpService {
       this.logger.error('verifyIdentity', {
         path: 'keybase.service.verifyIdentity',
         identity,
-        exception: e.toString()
+        exception: e.toString(),
       });
       return;
     }

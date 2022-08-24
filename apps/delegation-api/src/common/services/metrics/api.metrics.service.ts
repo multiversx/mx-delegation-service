@@ -1,0 +1,54 @@
+import { Injectable } from '@nestjs/common';
+import { register, Histogram, collectDefaultMetrics, Gauge } from 'prom-client';
+import { MetricsService } from '@elrondnetwork/erdnest';
+
+@Injectable()
+export class ApiMetricsService {
+  
+  private static apiCallsHistogram: Histogram<string>;
+  private static apiResponseSizeHistogram: Histogram<string>;
+  private static isDefaultMetricsRegistered = false;
+  private static transactionProcessorLastNonceGauge: Gauge<string>;
+
+  constructor (
+    private readonly metricsService: MetricsService,
+  ) {
+    if (!ApiMetricsService.apiResponseSizeHistogram) {
+      ApiMetricsService.apiResponseSizeHistogram = new Histogram({
+        name: 'api_response_size',
+        help: 'API Response size',
+        labelNames: [ 'endpoint' ],
+        buckets: [ ],
+      });
+    }
+
+    if (!ApiMetricsService.transactionProcessorLastNonceGauge) {
+      ApiMetricsService.transactionProcessorLastNonceGauge = new Gauge({
+        name: 'transaction_processor_last_nonce',
+        help: 'Transaction Processor Last Processed Nonce',
+        labelNames: [ 'shardId' ],
+      });
+    }
+
+  }
+
+  setApiCall(endpoint: string, status: number, duration: number, responseSize: number) {
+    ApiMetricsService.apiCallsHistogram.labels(endpoint, status.toString()).observe(duration);
+    ApiMetricsService.apiResponseSizeHistogram.labels(endpoint).observe(responseSize);
+  }
+
+  setTransactionProcessorLastNonce(shardId: number, nonce: number): void {
+    ApiMetricsService.transactionProcessorLastNonceGauge.set(
+      {
+        shardId,
+      },
+      nonce,
+    );
+  }
+
+  async getMetrics(): Promise<string> {
+    const baseMetrics = await this.metricsService.getMetrics();
+    const currentMetrics = await register.metrics();
+    return baseMetrics + `\n` + currentMetrics;
+  }
+}

@@ -6,9 +6,9 @@ import { UserUndelegatedItem, UserUndelegatedListDto } from './dto/user-undelega
 import { ElrondProxyService } from '../../common/services/elrond-communication/elrond-proxy.service';
 import { Delegation } from './dto/delegation.dto';
 import { QueryResponseHelper } from '../../common/helpers';
-import { NetworkStatus } from '@elrondnetwork/erdjs/out/networkStatus';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { NetworkStatus } from '@elrondnetwork/erdjs-network-providers';
 
 @Injectable()
 export class DelegationService {
@@ -21,7 +21,7 @@ export class DelegationService {
   }
 
   private async invalidateUserInfoForContract(address: string, contract: string) {
-    const networkStatus: NetworkStatus = await this.elrondProxyService.getNetworkStatus()
+    const networkStatus: NetworkStatus = await this.elrondProxyService.getNetworkStatus();
     const currentEpoch: number = networkStatus.EpochNumber;
     await this.cacheManagerService.deleteUserUndelegatedlist(address, contract, currentEpoch);
     await this.cacheManagerService.deleteUserActiveStake(address, contract);
@@ -82,7 +82,7 @@ export class DelegationService {
     try {
       return QueryResponseHelper.handleQueryAmountResponse(
         await this.elrondProxyService.getUserUnBondable(address, contract)
-      )
+      );
     } catch (e) {
       this.logger.error('Error getting User Unbondable', {
         path: 'delegation.service.getUserUnBondable',
@@ -90,7 +90,7 @@ export class DelegationService {
         userAddress: address,
         exception: e.toString(),
       });
-      return null
+      return null;
     }
   }
 
@@ -98,7 +98,7 @@ export class DelegationService {
     try {
       return QueryResponseHelper.handleQueryAmountResponse(
         await this.elrondProxyService.getClaimableRewards(address, contract)
-      )
+      );
     } catch (e) {
       this.logger.error('Error getting User Claimable Rewards', {
         path: 'delegation.service.getClaimableRewards',
@@ -106,7 +106,7 @@ export class DelegationService {
         userAddress: address,
         exception: e.toString(),
       });
-      return null
+      return null;
     }
   }
 
@@ -131,17 +131,18 @@ export class DelegationService {
         networkConfig.RoundsPerEpoch = networkStatus.RoundsPerEpoch;
       }
 
-      const undelegatedList = scResponse.returnData;
+      const undelegatedList = scResponse.getReturnDataParts();
       const results = [];
       for(let index = 0; index < undelegatedList.length - 1; index = index + 2) {
-        const undelegatedAmountEncoded = undelegatedList[index];
-        const remainingEpochsString = undelegatedList[index + 1];
-        const amount = undelegatedAmountEncoded.asBigInt.toFixed();
+        const undelegatedAmountBuffer = undelegatedList[index];
+        const remainingEpochsBuffer = undelegatedList[index + 1];
+        const remainingEpochsNumber = remainingEpochsBuffer.asNumber();
+        const amount = undelegatedAmountBuffer.asFixed();
         const cachedExpireTime = await this.cacheManagerService.getUndelegatedExpireTime(
           address,
           contract,
           amount,
-          remainingEpochsString.asNumber,
+          remainingEpochsNumber,
           networkStatus.EpochNumber);
 
         if (!!cachedExpireTime) {
@@ -165,8 +166,8 @@ export class DelegationService {
           networkConfig.RoundsPerEpoch,
           networkConfig.RoundDuration,
           networkStatus.RoundsPassedInCurrentEpoch,
-          remainingEpochsString.asNumber
-        )
+          remainingEpochsNumber
+        );
 
         const expireDate = new Date();
         expireDate.setSeconds(expireDate.getSeconds() + secondsLeft);
@@ -176,9 +177,9 @@ export class DelegationService {
           address,
           contract,
           amount,
-          remainingEpochsString.asNumber,
+          remainingEpochsNumber,
           networkStatus.EpochNumber,
-          expireDate.toString())
+          expireDate.toString());
 
         results.push(
           new UserUndelegatedItem(
@@ -219,10 +220,10 @@ export class DelegationService {
       const totalRounds = roundsCurrentEpoch + roundsCompletedEpochs;
       secondsLeft = totalRounds * roundDuration / 1000;
     } else {
-      secondsLeft = 0
+      secondsLeft = 0;
     }
 
-    return secondsLeft
+    return secondsLeft;
   }
   async getDelegationForUser(contract: string, address: string): Promise<Delegation | null> {
     const delegation =  await this.elrondElasticService.getDelegationForAddressAndContract(address, contract);
@@ -239,17 +240,17 @@ export class DelegationService {
       userUnBondable,
       userActiveStake,
       claimableRewards,
-      userUndelegatedList
+      userUndelegatedList,
     ] =
     await Promise.all([
       this.getUserUnBondable(address, contract),
       this.getUserActiveStake(contract, address),
       this.getClaimableRewards(address, contract),
-      this.getUserUnDelegatedList(contract, address)
+      this.getUserUnDelegatedList(contract, address),
     ]);
 
    if (!userUnBondable && !userActiveStake && !claimableRewards) {
-      return
+      return;
     }
 
     return new Delegation(

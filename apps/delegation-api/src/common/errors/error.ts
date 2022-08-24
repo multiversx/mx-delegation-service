@@ -12,7 +12,7 @@ export class Error {
   @ApiProperty({
     name: 'error',
     description: 'The error codes. It should be one from /utils/errors.ts',
-    enum: { ...Generic}
+    enum: { ...Generic},
   })
   error: string;
   /**

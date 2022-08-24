@@ -15,6 +15,6 @@ export class InternalServerError extends InternalServerErrorException {
       message,
       error,
       statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-    })
+    });
   }
 }

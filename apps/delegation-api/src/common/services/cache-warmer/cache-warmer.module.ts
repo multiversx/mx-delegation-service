@@ -7,14 +7,14 @@ import { CacheWarmerScheduler } from './cache-warmer.scheduler';
 @Module({
   providers: [
     CacheWarmerService,
-    CacheWarmerScheduler
+    CacheWarmerScheduler,
   ],
   imports: [
     ElrondCommunicationModule,
-    CacheManagerModule
+    CacheManagerModule,
   ],
   exports: [
-    CacheWarmerService
-  ]
+    CacheWarmerService,
+  ],
 })
 export class CacheWarmerModule {}

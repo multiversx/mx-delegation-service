@@ -16,7 +16,4 @@ describe('DelegationService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should return a valid time left for undelegated', () => {
-
-  })
 });

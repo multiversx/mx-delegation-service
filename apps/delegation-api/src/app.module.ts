@@ -6,9 +6,9 @@ import { DelegationModule } from './modules/delegation/delegation.module';
 import { ProvidersModule } from './modules/providers/providers.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ServicesModule } from './common/services';
-import { MetricsModule } from './common/services/metrics/metrics.module';
+import { ApiMetricsModule } from './common/services/metrics/api.metrics.module';
 import { LoggingModule } from './logging.module';
-import './utils/extentions'
+import './utils/extentions';
 
 @Module({
   imports: [
@@ -18,14 +18,14 @@ import './utils/extentions'
     ProvidersModule,
     DelegationModule,
     ServicesModule,
-    MetricsModule,
+    ApiMetricsModule,
   ],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: LoggerInterceptor,
     },
-    LoggerInterceptor
+    LoggerInterceptor,
   ],
 })
 export class AppModule {}

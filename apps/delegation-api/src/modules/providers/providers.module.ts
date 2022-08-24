@@ -11,16 +11,16 @@ import { ServicesModule } from '../../common/services';
   controllers: [ProvidersController],
   providers: [
     ProvidersService,
-    DelegationAprService
+    DelegationAprService,
   ],
   imports: [
     CacheManagerModule,
     ElrondCommunicationModule,
     ProviderManagerModule,
-    ServicesModule
+    ServicesModule,
   ],
   exports: [
-    ProvidersService
-  ]
+    ProvidersService,
+  ],
 })
 export class ProvidersModule {}

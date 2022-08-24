@@ -1,4 +1,4 @@
-import { ContractReturnData } from '@elrondnetwork/erdjs/out/smartcontracts/query';
+import { QueryResponseHelper } from '../../../common/helpers';
 
 export class ContractConfigResponseDto {
   owner?: string;
@@ -14,18 +14,19 @@ export class ContractConfigResponseDto {
   apr: string;
   aprValue: number;
 
-  static fromContractConfig(contractConfig: ContractReturnData[]): ContractConfigResponseDto {
+  static fromContractConfig(contractConfig: Buffer[]): ContractConfigResponseDto {
     const response = new ContractConfigResponseDto();
-    response.owner = contractConfig[0]?.asHex.hexToBech32();
-    response.serviceFee = contractConfig[1]?.asBigInt.toFixed();
-    response.maxDelegationCap = contractConfig[2]?.asBigInt.toFixed();
-    response.initialOwnerFunds = contractConfig[3]?.asBigInt.toFixed();
-    response.automaticActivation = contractConfig[4]?.asBool;
-    response.withDelegationCap = contractConfig[5]?.asBool;
-    response.changeableServiceFee = contractConfig[6]?.asBool;
-    response.checkCapOnRedelegate = contractConfig[7]?.asBool;
-    response.createdNonce = contractConfig[8]?.asNumber;
-    response.unBondPeriod = contractConfig[9]?.asNumber;
+
+    response.owner = contractConfig[0]?.toString('hex').hexToBech32();
+    response.serviceFee = contractConfig[1]?.asFixed();
+    response.maxDelegationCap = contractConfig[2]?.asFixed();
+    response.initialOwnerFunds = contractConfig[3]?.asFixed();
+    response.automaticActivation = contractConfig[4].asBool();
+    response.withDelegationCap = contractConfig[5].asBool();
+    response.changeableServiceFee = contractConfig[6].asBool();
+    response.checkCapOnRedelegate = contractConfig[7].asBool();
+    response.createdNonce = contractConfig[8].asNumber();
+    response.unBondPeriod = contractConfig[9].asNumber();
 
     return response;
   }

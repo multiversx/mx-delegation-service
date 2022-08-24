@@ -16,7 +16,7 @@ export class ProvidersController {
     name: 'featured',
     type: 'boolean',
     required: false,
-    description: 'Get only the providers marked in the API as featured'
+    description: 'Get only the providers marked in the API as featured',
   })
   @ApiOkResponse({
     description: 'The list of all supported staking providers including data<br>' +

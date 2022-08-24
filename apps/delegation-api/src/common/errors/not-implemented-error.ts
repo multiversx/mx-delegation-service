@@ -15,6 +15,6 @@ export class NotImplementedError extends NotImplementedException {
       message,
       error,
       statusCode: HttpStatus.NOT_IMPLEMENTED,
-    })
+    });
   }
 }

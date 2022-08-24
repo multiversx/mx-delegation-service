@@ -36,14 +36,12 @@ export class DelegationAprService {
     }
 
     const [
-      {
-        returnData: [activeStake],
-      },
-      { returnData: blsKeys },
+      activeStakeResponse,
+      blsKeysResponse,
       networkStats,
       networkStake,
       networkConfig,
-      stakedBalance
+      stakedBalance,
       ] = await Promise.all(
       [
         this.elrondProxyService.getGlobalDelegationMethod('getTotalActiveStake', delegationContract),
@@ -55,6 +53,8 @@ export class DelegationAprService {
       ]
     );
 
+    const blsKeys: Buffer[] = blsKeysResponse.getReturnDataParts();
+    const activeStake: Buffer = activeStakeResponse.getReturnDataParts()[0];
     const feesInEpoch = elrondConfig.feesInEpoch;
     const stakePerNode = elrondConfig.stakePerNode;
     const protocolSustainabilityRewards = elrondConfig.protocolSustainabilityRewards;
@@ -87,17 +87,17 @@ export class DelegationAprService {
         (2 * 2000000)
       );
     const baseReward = rewardsPerEpochWithoutProtocolSustainability - topUpReward;
-    const allNodes = blsKeys.filter(key => key.asString === 'staked' || key.asString === 'jailed' || key.asString === 'queued')
+    const allNodes = blsKeys.filter(key => key.asString() === 'staked' || key.asString() === 'jailed' || key.asString() === 'queued')
       .length;
 
-    const allActiveNodes = blsKeys.filter(key => key.asString === 'staked').length;
+    const allActiveNodes = blsKeys.filter(key => key.asString() === 'staked').length;
     if (allActiveNodes <= 0) {
       return 0;
     }
 
     // based on validator total stake recalibrate the active nodes.
     // it can happen that an user can unStake some tokens, but the node is still active until the epoch change
-    const validatorTotalStake = parseInt(denominateValue(activeStake.asBigInt.toFixed()));
+    const validatorTotalStake = parseInt(denominateValue(activeStake.asBigInt().toFixed()));
     const actualNumberOfNodes = Math.min(Math.floor(validatorTotalStake / stakePerNode), allActiveNodes);
     const validatorBaseStake = actualNumberOfNodes * stakePerNode;
     const validatorTopUpStake = ((validatorTotalStake - allNodes * stakePerNode) / allNodes) * allActiveNodes;

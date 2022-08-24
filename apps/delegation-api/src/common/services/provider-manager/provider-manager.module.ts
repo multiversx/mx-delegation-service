@@ -5,14 +5,14 @@ import { CacheManagerModule } from '../cache-manager/cache-manager.module';
 
 @Module({
   providers: [
-    ProviderManagerService
+    ProviderManagerService,
   ],
   imports: [
     ElrondCommunicationModule,
-    CacheManagerModule
+    CacheManagerModule,
   ],
   exports: [
-    ProviderManagerService
-  ]
+    ProviderManagerService,
+  ],
 })
 export class ProviderManagerModule {}

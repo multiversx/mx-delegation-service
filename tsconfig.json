@@ -25,10 +25,10 @@
     "esModuleInterop": true
   },
   "include": [
-    "apps/delegation-api/src/**/*"
+    "apps/delegation-api/src/**/*",
+    "libs/shared/src/**/*"
   ],
   "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
+    "node_modules"
   ]
 }
