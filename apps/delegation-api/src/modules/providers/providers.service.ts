@@ -237,7 +237,7 @@ export class ProvidersService {
     try {
       const result = await this.elrondProxyService.getContractConfig(contract);
 
-      if (!result) {
+      if (!result || !result.returnData) {
         return null;
       }
 

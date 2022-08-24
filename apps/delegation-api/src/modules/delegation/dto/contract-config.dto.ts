@@ -1,4 +1,3 @@
-import { QueryResponseHelper } from '../../../common/helpers';
 
 export class ContractConfigResponseDto {
   owner?: string;

@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { register, Histogram, collectDefaultMetrics, Gauge } from 'prom-client';
+import { register, Histogram, Gauge } from 'prom-client';
 import { MetricsService } from '@elrondnetwork/erdnest';
 
 @Injectable()
 export class ApiMetricsService {
   
-  private static apiCallsHistogram: Histogram<string>;
   private static apiResponseSizeHistogram: Histogram<string>;
-  private static isDefaultMetricsRegistered = false;
   private static transactionProcessorLastNonceGauge: Gauge<string>;
 
   constructor (
@@ -30,11 +28,6 @@ export class ApiMetricsService {
       });
     }
 
-  }
-
-  setApiCall(endpoint: string, status: number, duration: number, responseSize: number) {
-    ApiMetricsService.apiCallsHistogram.labels(endpoint, status.toString()).observe(duration);
-    ApiMetricsService.apiResponseSizeHistogram.labels(endpoint).observe(responseSize);
   }
 
   setTransactionProcessorLastNonce(shardId: number, nonce: number): void {
