@@ -33,7 +33,7 @@ Buffer.prototype.asBool = function () {
     return false;
   }
   if (this.length > 1) {
-    return this.asString() === 'true';
+    return this.asString().toLowerCase() === 'true';
   }
   return decodeBool(this);
 };
