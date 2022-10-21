@@ -72,12 +72,12 @@ export class DelegationAprService {
       (1 - protocolSustainabilityRewards) * rewardsPerEpoch;
     const topUpRewardsLimit =
       0.5 * rewardsPerEpochWithoutProtocolSustainability;
-    const networkBaseStake = networkStake.ActiveValidators * stakePerNode;
+    const networkBaseStake = networkStake.TotalValidators * stakePerNode;
     const networkTotalStake = parseInt(denominateValue(stakedBalance.toFixed()));
 
     const networkTopUpStake =
       networkTotalStake -
-      networkStake.TotalValidators * stakePerNode -
+      networkBaseStake -
       networkStake.QueueSize * stakePerNode;
 
     const topUpReward =
