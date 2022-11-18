@@ -3,7 +3,7 @@ import { elrondConfig } from '../../../config';
 import { Client } from '@elastic/elasticsearch';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { ContractDeployTx, ElasticTransaction } from '../../../models';
+import { ContractDeployTx, ElasticTransaction, SearchAfterResponse } from '../../../models';
 import { AddressActiveContract } from '../../../models/address-active-contract';
 
 /**
@@ -208,6 +208,46 @@ export class ElrondElasticService {
     } catch (e) {
       this.logger.error('Fail to getDelegationsForContract', {
         path: 'elrond-elastic.service.getDelegationsForContract',
+        exception: e.toString(),
+      });
+      throw e;
+    }
+  }
+
+  async getDelegationsForContractWithCursor(contract: string, cursor: string | null = null): Promise<SearchAfterResponse<AddressActiveContract> | null> {
+    const body = {
+      size: this.PAGE_SIZE,
+      'query': {
+        'bool': {
+          'must': [
+            {
+              'match': {
+                'contract': contract,
+              },
+            },
+          ],
+        },
+      },
+      sort: {
+        _id: {
+          order: 'asc',
+        },
+      },
+    };
+    if (cursor) {
+      body['search_after'] = [cursor];
+    }
+
+    try {
+      const response = await this.delegatorsClient.search({ body });
+      if (response.body.hits.hits.length) {
+        return new SearchAfterResponse(response.body.hits.hits.map(e => e._source), response.body.hits.hits[response.body.hits.hits.length - 1].sort[0]);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      this.logger.error('Fail to getDelegationsForContractWithCursor', {
+        path: 'elrond-elastic.service.getDelegationsForContractWithCursor',
         exception: e.toString(),
       });
       throw e;

@@ -2,13 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ElrondElasticService } from '../../common/services/elrond-communication/elrond-elastic.service';
 import { CacheManagerService } from '../../common/services/cache-manager/cache-manager.service';
 import '../../utils/extentions';
-import { UserUndelegatedItem, UserUndelegatedListDto } from './dto/user-undelegated-list.dto';
+import { UserUndelegatedListDto } from '../../models/user-undelegated-list.dto';
 import { ElrondProxyService } from '../../common/services/elrond-communication/elrond-proxy.service';
 import { Delegation } from './dto/delegation.dto';
 import { QueryResponseHelper } from '../../common/helpers';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { NetworkStatus } from '@elrondnetwork/erdjs-network-providers';
+import { UserUndelegatedListService } from '../../common/services/user-undelegated-list/user-undelegated-list.service';
 
 @Injectable()
 export class DelegationService {
@@ -16,6 +17,7 @@ export class DelegationService {
     private elrondElasticService: ElrondElasticService,
     private cacheManagerService: CacheManagerService,
     private elrondProxyService: ElrondProxyService,
+    private userUndelegatedListService: UserUndelegatedListService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {
   }
@@ -110,84 +112,15 @@ export class DelegationService {
     }
   }
 
-  private async getUserUnDelegatedList(contract: string, address: string): Promise<UserUndelegatedListDto> {
+  public async getUserUnDelegatedList(contract: string, address: string): Promise<UserUndelegatedListDto> {
     try {
-      const scResponse = await this.elrondProxyService.getUserUnDelegatedList(
-        address,
-        contract
-      );
-
-      if (!scResponse.returnData || scResponse.returnData.length === 0) {
+     const results = await this.userUndelegatedListService.get(contract, address);
+      if (!results) {
         return new UserUndelegatedListDto(
           address,
           contract,
           []
         );
-      }
-
-      const networkConfig = await this.elrondProxyService.getNetworkConfig();
-      const networkStatus = await this.elrondProxyService.getNetworkStatus();
-      if (!networkConfig.RoundsPerEpoch) {
-        networkConfig.RoundsPerEpoch = networkStatus.RoundsPerEpoch;
-      }
-
-      const undelegatedList = scResponse.getReturnDataParts();
-      const results = [];
-      for(let index = 0; index < undelegatedList.length - 1; index = index + 2) {
-        const undelegatedAmountBuffer = undelegatedList[index];
-        const remainingEpochsBuffer = undelegatedList[index + 1];
-        const remainingEpochsNumber = remainingEpochsBuffer.asNumber();
-        const amount = undelegatedAmountBuffer.asFixed();
-        const cachedExpireTime = await this.cacheManagerService.getUndelegatedExpireTime(
-          address,
-          contract,
-          amount,
-          remainingEpochsNumber,
-          networkStatus.EpochNumber);
-
-        if (!!cachedExpireTime) {
-          // if there is a cached expire time calculate seconds and add them to the returned object
-          const expireDateTime = Date.parse(cachedExpireTime);
-          const currentDate = new Date();
-          let cachedSecondsLeft = Math.round((expireDateTime - currentDate.getTime()) / 1000);
-          if (cachedSecondsLeft < 0) {
-            cachedSecondsLeft = 0;
-          }
-          results.push(
-            new UserUndelegatedItem(
-              amount,
-              cachedSecondsLeft
-            )
-          );
-          continue;
-        }
-
-        const secondsLeft = this.calculateUndelegatedSecondsLeft(
-          networkConfig.RoundsPerEpoch,
-          networkConfig.RoundDuration,
-          networkStatus.RoundsPassedInCurrentEpoch,
-          remainingEpochsNumber
-        );
-
-        const expireDate = new Date();
-        expireDate.setSeconds(expireDate.getSeconds() + secondsLeft);
-        // cache expireDate, so we can calculate secondsLeft on future requests, when no new data will be fetched from
-        // vm-query.
-        await this.cacheManagerService.setUndelegatedExpireTime(
-          address,
-          contract,
-          amount,
-          remainingEpochsNumber,
-          networkStatus.EpochNumber,
-          expireDate.toString());
-
-        results.push(
-          new UserUndelegatedItem(
-            amount,
-            secondsLeft
-          )
-        );
-
       }
 
       return new UserUndelegatedListDto(
@@ -206,25 +139,6 @@ export class DelegationService {
     }
   }
 
-  private calculateUndelegatedSecondsLeft(
-      roundsPerEpoch: number,
-      roundDuration: number,
-      roundsPassedInCurrentEpoch: number,
-      remainingEpochs: number): number {
-    let roundsCurrentEpoch = roundsPerEpoch - roundsPassedInCurrentEpoch;
-    if (roundsCurrentEpoch < 0) roundsCurrentEpoch = 0;
-    let roundsCompletedEpochs = 0;
-    let secondsLeft: number;
-    if (remainingEpochs >= 1) {
-      roundsCompletedEpochs = (remainingEpochs - 1) * roundsPerEpoch;
-      const totalRounds = roundsCurrentEpoch + roundsCompletedEpochs;
-      secondsLeft = totalRounds * roundDuration / 1000;
-    } else {
-      secondsLeft = 0;
-    }
-
-    return secondsLeft;
-  }
   async getDelegationForUser(contract: string, address: string): Promise<Delegation | null> {
     const delegation =  await this.elrondElasticService.getDelegationForAddressAndContract(address, contract);
     return delegation ? this.getContractDataForUser(contract, address) : null;

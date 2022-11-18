@@ -7,6 +7,7 @@ import { UserContractDeploy } from '../../../models';
 import { AddressActiveContract } from '../../../models/address-active-contract';
 import { ContractFeeChanges } from '../../../models/contract-fee-changes';
 import { NetworkConfig, NetworkStatus } from '@elrondnetwork/erdjs-network-providers';
+import { Constants } from '@elrondnetwork/erdnest/lib/src/utils/constants';
 
 const Keys = {
   allContractAddresses: () => 'allContractAddresses',
@@ -35,6 +36,7 @@ const Keys = {
   isContractDeployedByAddress: (contract: string, address: string) => `isContractDeployedByAddress.${contract}.${address}`,
   addressContractDeploys: () => 'addressContractDeploys',
   addressActiveContracts: (address: string) => `addressActiveContracts.${address}`,
+  totalUndelegatingAddressesForContract: (contract: string) => `totalUndelegatingAddressesByEpoch.${contract}`,
 };
 
 @Injectable()
@@ -333,6 +335,12 @@ export class CacheManagerService {
   }
   async setContractFeeChange(forContract: string, data: ContractFeeChanges): Promise<void> {
     await this.set(Keys.contractFeeChanges(forContract), data, cacheConfig.getContractFeeChanges);
+  }
+  async setTotalUndelegatingAddressesForContract(contract: string, totalForEpochs: number[]): Promise<void> {
+    await this.set(Keys.totalUndelegatingAddressesForContract(contract), totalForEpochs, Constants.oneDay());
+  }
+  getTotalUndelegatingAddressesForContract(contract: string): Promise<number[]> {
+    return this.cacheManager.get(Keys.totalUndelegatingAddressesForContract(contract));
   }
 
   private set(key: string, value: any, ttl: number) {

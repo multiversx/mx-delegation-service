@@ -13,7 +13,7 @@ export class UserUndelegatedListDto {
 export class UserUndelegatedItem {
   amount: string;
   seconds: number;
-
+  remainingEpochsNumber?: number;
 
   constructor(amount: string, seconds: number) {
     this.amount = amount;

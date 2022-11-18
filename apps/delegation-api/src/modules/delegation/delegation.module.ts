@@ -5,6 +5,7 @@ import { DelegationService } from './delegation.service';
 import { CacheManagerModule } from '../../common/services/cache-manager/cache-manager.module';
 import { ProvidersModule } from '../providers/providers.module';
 import * as redisStore from 'cache-manager-ioredis';
+import { UserUndelegatedListModule } from '../../common/services/user-undelegated-list/user-undelegated-list.module';
 
 @Module({
   controllers: [DelegationController],
@@ -25,6 +26,7 @@ import * as redisStore from 'cache-manager-ioredis';
       }],
       name: process.env.SENTINEL_NAME,
     }),
+    UserUndelegatedListModule,
   ],
   exports: [
     DelegationService,

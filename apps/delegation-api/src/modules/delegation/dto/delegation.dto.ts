@@ -1,4 +1,4 @@
-import { UserUndelegatedItem } from './user-undelegated-list.dto';
+import { UserUndelegatedItem } from '../../../models/user-undelegated-list.dto';
 
 export class Delegation {
   address: string;
