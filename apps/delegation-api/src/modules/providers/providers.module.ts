@@ -6,9 +6,10 @@ import { ElrondCommunicationModule } from '../../common/services/elrond-communic
 import { ProviderManagerModule } from '../../common/services/provider-manager/provider-manager.module';
 import { DelegationAprService } from '../delegation/delegation-apr.service';
 import { ServicesModule } from '../../common/services';
+import { ProvidersControllerV2 } from './providers-v2.controller';
 
 @Module({
-  controllers: [ProvidersController],
+  controllers: [ProvidersController, ProvidersControllerV2],
   providers: [
     ProvidersService,
     DelegationAprService,
