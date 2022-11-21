@@ -19,6 +19,8 @@ import asyncPool from 'tiny-async-pool';
 import { elrondConfig } from '../../config';
 import { ElrondElasticService } from '../../common/services/elrond-communication/elrond-elastic.service';
 import { ProviderDelegation } from './dto/provider-delegation.dto';
+import { ProviderDelegationsWithCursor } from './dto/provider-delegations-with-cursor';
+import { PendingUndelegationsDto } from './dto/pending-undelegations.dto';
 
 @Injectable()
 export class ProvidersService {
@@ -106,6 +108,14 @@ export class ProvidersService {
       return [];
     }
     return delegations.map(e => ProviderDelegation.fromAddressActiveContract(e));
+  }
+
+  async getProviderDelegationsByCursor(provider: string, cursor: string): Promise<ProviderDelegationsWithCursor> {
+    const data =  await this.elrondElasticService.getDelegationsForContractWithCursor(provider, cursor);
+    if (!data) {
+      return new ProviderDelegationsWithCursor([], '');
+    }
+    return new ProviderDelegationsWithCursor(data.items.map(e => ProviderDelegation.fromAddressActiveContract(e)), data.cursor);
   }
 
   private async getProvidersForApi(providers: ProviderWithData[]): Promise<Provider[]> {
@@ -259,5 +269,15 @@ export class ProvidersService {
         error: ErrorCodes.errorCallingContract,
       });
     }
+  }
+
+  async getPendingUndelegations(): Promise<PendingUndelegationsDto[]>{
+    const providerAddresses = await this.providerManager.getAllContractAddresses();
+    return await Promise.all(
+      providerAddresses.map(async e => new PendingUndelegationsDto(
+        e,
+        await this.cacheManagerService.getTotalUndelegatingAddressesForContract(e)
+      ))
+    );
   }
 }

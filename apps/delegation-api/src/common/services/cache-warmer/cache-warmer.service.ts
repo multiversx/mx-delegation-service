@@ -17,7 +17,6 @@ export class CacheWarmerService implements OnModuleInit {
   { }
 
   async onModuleInit() {
-    await this.getPendingUndelegations();
     await this.cacheStakingContractDeployedContracts();
   }
 

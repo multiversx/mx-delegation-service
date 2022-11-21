@@ -4,6 +4,7 @@ import { Provider } from './dto/providers.response.dto';
 import { ProvidersService } from './providers.service';
 import { ProviderDelegation } from './dto/provider-delegation.dto';
 import { PagePipe } from '../../common/utils/pipes/page.pipe';
+import { ProviderDelegationsWithCursor } from './dto/provider-delegations-with-cursor';
 
 @Controller('providers')
 @ApiTags('Providers')
@@ -53,5 +54,22 @@ export class ProvidersController {
     @Query('page', new DefaultValuePipe(1), new ParseIntPipe(), new PagePipe()) page: number,
   ) : Promise<ProviderDelegation[]> {
     return this.providersService.getProviderDelegations(provider, page);
+  }
+
+  @Get(':provider/stakers')
+  @ApiQuery({
+    name: 'cursor',
+    type: 'string',
+    required: false,
+  })
+  @ApiOkResponse({
+    description: 'The Delegation list for this provider paginated by use of a cursor',
+    type: ProviderDelegationsWithCursor,
+  })
+  stakingProviderDelegationsByCursor(
+    @Param('provider') provider: string,
+    @Query('cursor', new DefaultValuePipe('')) cursor: string,
+  ) : Promise<ProviderDelegationsWithCursor> {
+    return this.providersService.getProviderDelegationsByCursor(provider, cursor);
   }
 }

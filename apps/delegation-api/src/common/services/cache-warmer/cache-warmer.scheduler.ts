@@ -10,4 +10,9 @@ export class CacheWarmerScheduler {
   async maintainStakingContractDeployedContracts() {
     await this.cacheWarmerService.cacheStakingContractDeployedContracts();
   }
+
+  @Cron(CronExpression.EVERY_DAY_AT_3AM)
+  async maintainPendingUndelegations() {
+    await this.cacheWarmerService.getPendingUndelegations();
+  }
 }

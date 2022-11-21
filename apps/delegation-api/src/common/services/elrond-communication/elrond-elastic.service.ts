@@ -214,7 +214,7 @@ export class ElrondElasticService {
     }
   }
 
-  async getDelegationsForContractWithCursor(contract: string, cursor: string | null = null): Promise<SearchAfterResponse<AddressActiveContract> | null> {
+  async getDelegationsForContractWithCursor(contract: string, cursor = ''): Promise<SearchAfterResponse<AddressActiveContract> | null> {
     const body = {
       size: this.PAGE_SIZE,
       'query': {
