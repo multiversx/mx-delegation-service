@@ -3,7 +3,7 @@ import { ElrondCommunicationModule } from '../elrond-communication/elrond-commun
 import { ProviderManagerService } from './provider-manager.service';
 import { CacheManagerModule } from '../cache-manager/cache-manager.module';
 import { VerifyIdentityModule } from './verify-identity/verify-identity.module';
-import { GetProfileLoaderModule } from './get-profile/loader/get-profile-loader.module';
+import { ProfileLoaderModule } from './profile/loader/profile-loader.module';
 
 @Module({
   providers: [
@@ -12,7 +12,7 @@ import { GetProfileLoaderModule } from './get-profile/loader/get-profile-loader.
   imports: [
     ElrondCommunicationModule,
     CacheManagerModule,
-    GetProfileLoaderModule,
+    ProfileLoaderModule,
   ],
   exports: [
     ProviderManagerService,

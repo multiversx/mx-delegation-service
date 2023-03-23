@@ -6,14 +6,14 @@ import { GithubService } from "../../../github/github.service";
 import { KeyBaseService } from "../keybase/keybase.service";
 
 @Injectable()
-export class GetProfileLoaderService {
+export class ProfileLoaderService {
   private readonly logger: Logger;
   constructor(
     private readonly githubService: GithubService,
     private readonly keybaseService: KeyBaseService,
     private readonly cacheManagerService: CacheManagerService
   ) {
-    this.logger = new Logger(GetProfileLoaderService.name);
+    this.logger = new Logger(ProfileLoaderService.name);
   }
 
   async load(identity: string): Promise<GithubUserInfo | undefined> {

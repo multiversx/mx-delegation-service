@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { CacheManagerModule } from "../../../cache-manager/cache-manager.module";
 import { GithubModule } from "../../../github/github.module";
 import { KeybaseModule } from "../keybase/keybase.module";
-import { GetProfileLoaderService } from "./get-profile-loader.service";
+import { ProfileLoaderService } from "./profile-loader.service";
 
 @Module({
   imports: [
@@ -11,10 +11,10 @@ import { GetProfileLoaderService } from "./get-profile-loader.service";
     KeybaseModule,
   ],
   providers: [
-    GetProfileLoaderService,
+    ProfileLoaderService,
   ],
   exports: [
-    GetProfileLoaderService,
+    ProfileLoaderService,
   ],
 })
-export class GetProfileLoaderModule { }
+export class ProfileLoaderModule { }

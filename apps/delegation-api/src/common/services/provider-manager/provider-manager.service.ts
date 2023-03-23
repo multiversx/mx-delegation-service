@@ -7,14 +7,14 @@ import { ProviderWithData } from '../../../modules/providers/dto/provider-with-d
 import asyncPool from 'tiny-async-pool';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { GetProfileLoaderService } from './get-profile/loader/get-profile-loader.service';
+import { ProfileLoaderService } from './profile/loader/profile-loader.service';
 
 @Injectable()
 export class ProviderManagerService {
   constructor(
     private elrondProxyService: ElrondProxyService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    private readonly getProfileLoaderService: GetProfileLoaderService
+    private readonly getProfileLoaderService: ProfileLoaderService
   ) {
   }
 
