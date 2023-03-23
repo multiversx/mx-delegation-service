@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ProviderContract } from './models/provider-identity';
 import { ElrondProxyService } from '../elrond-communication/elrond-proxy.service';
-import { KeyBaseService } from '../elrond-communication/keybase.service';
 import { BadRequest } from '../../errors';
 import { ErrorCodes } from '../../../utils';
 import { ProviderWithData } from '../../../modules/providers/dto/provider-with-data.dto';
@@ -9,14 +8,15 @@ import asyncPool from 'tiny-async-pool';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { VerifyIdentityService } from './verify-identity/verify-identity.service';
+import { GetProfileLoaderService } from './get-profile/loader/get-profile-loader.service';
 
 @Injectable()
 export class ProviderManagerService {
   constructor(
     private elrondProxyService: ElrondProxyService,
-    private keyBaseService: KeyBaseService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    private readonly verifyIdentityService: VerifyIdentityService
+    private readonly verifyIdentityService: VerifyIdentityService,
+    private readonly getProfileLoaderService: GetProfileLoaderService
   ) {
   }
 
@@ -50,29 +50,13 @@ export class ProviderManagerService {
 
       providerInfo.key = identityKey;
 
-      const profile = await this.keyBaseService.getProfile(providerInfo.key);
-      providerInfo.name = profile.them?.profile?.full_name;
-      providerInfo.avatar = profile.them?.pictures?.primary?.url;
-      providerInfo.description = profile.them?.profile?.bio;
-      providerInfo.twitter = profile.them?.profile?.twitter;
-      providerInfo.location = profile.them?.profile?.location;
-
-      if (profile.them.proofs_summary.all) {
-        for (const proof of profile.them.proofs_summary.all) {
-          switch (proof.proof_type) {
-            case 'twitter':
-              providerInfo.twitter = proof.service_url;
-              break;
-            case 'github':
-              providerInfo.github = proof.service_url;
-              break;
-            case 'dns':
-            case 'generic_web_site':
-              providerInfo.url = proof.service_url;
-              break;
-          }
-        }
-      }
+      const profile = await this.getProfileLoaderService.load(identityKey);
+      providerInfo.name = profile.name;
+      providerInfo.avatar = profile.avatar_url;
+      providerInfo.description = profile.bio;
+      providerInfo.twitter = profile.twitter_username;
+      providerInfo.location = profile.location;
+      providerInfo.url = profile.blog;
 
       return providerInfo;
     } catch (e) {

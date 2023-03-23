@@ -15,7 +15,6 @@ const Keys = {
   newContractCreator: (creator: string) => `newContractCreator.${creator}`,
   blsKeys: (auctionContract: string, delegationContract: string, epoch: number) => `blsKeys.${auctionContract}.${delegationContract}.${epoch}`,
   metaData: (contract: string) => `contractMetaData.${contract}`,
-  verifyIdentity: (url: string) => `verifyIdentity.${url}`,
   getProfile: (identity: string) => `getProfile.${identity}`,
   providerData: (method: string, contract: string) => `${method}.${contract}`,
   totalCumulatedRewards: (contract: string, epoch: number) => `totalCumulatedRewards.${contract}.${epoch}`,
@@ -95,17 +94,6 @@ export class CacheManagerService {
     await this.set(Keys.metaData(contract), data, ttl);
   }
 
-  /**
-   * KeyBase
-   * @param url
-   */
-  getVerifyIdentity(url: string): Promise<boolean> {
-    return this.cacheManager.get<boolean>(Keys.verifyIdentity(url));
-  }
-  async setVerifyIdentity(url: string, isVerified: boolean): Promise<void> {
-    const ttl = isVerified ? cacheConfig.verifyIdentity.verified : cacheConfig.verifyIdentity.standard;
-    await this.set(Keys.verifyIdentity(url), isVerified, ttl);
-  }
   getProfile(identity: string): Promise<Record<string, any>> {
     return this.cacheManager.get(Keys.getProfile(identity));
   }

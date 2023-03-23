@@ -1,7 +1,7 @@
 export class GithubUserInfo {
-  username: string = '';
+  username = '';
 
-  name: string = '';
+  name = '';
 
   avatar_url?: string;
 
