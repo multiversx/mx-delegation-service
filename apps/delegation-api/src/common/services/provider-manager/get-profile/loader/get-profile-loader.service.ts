@@ -39,7 +39,12 @@ export class GetProfileLoaderService {
 
   private async getFromGithub(identity: string): Promise<GithubUserInfo | undefined> {
     try {
-      return await this.githubService.getUserInfo(identity);
+      const profile = await this.githubService.getUserInfo(identity);
+      if (profile == null || profile.name == null || profile.avatar_url == null || profile.bio == null) {
+        return null;
+      }
+
+      return profile;
     } catch (error) {
       this.logger.error(`Unexpected error when getting profile from github`, {
         identity,
@@ -77,7 +82,7 @@ export class GetProfileLoaderService {
       }
 
     } catch (error) {
-      this.logger.error(`Unexpected error when getting profile from github`, {
+      this.logger.error(`Unexpected error when getting profile from keybase`, {
         identity,
         error,
       });
