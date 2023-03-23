@@ -1,15 +1,9 @@
 export class GithubUserInfo {
-  username = '';
-
-  name = '';
-
-  avatar_url?: string;
-
-  bio?: string;
-
-  location?: string;
-
-  twitter_username?: string;
-
-  blog?: string;
+  username: string;
+  name: string;
+  avatar_url: string;
+  bio: string;
+  location: string;
+  twitter_username: string;
+  blog: string;
 }
