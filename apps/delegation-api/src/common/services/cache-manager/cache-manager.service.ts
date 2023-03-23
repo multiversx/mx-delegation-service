@@ -15,7 +15,6 @@ const Keys = {
   newContractCreator: (creator: string) => `newContractCreator.${creator}`,
   blsKeys: (auctionContract: string, delegationContract: string, epoch: number) => `blsKeys.${auctionContract}.${delegationContract}.${epoch}`,
   metaData: (contract: string) => `contractMetaData.${contract}`,
-  getProfile: (identity: string) => `getProfile.${identity}`,
   providerData: (method: string, contract: string) => `${method}.${contract}`,
   totalCumulatedRewards: (contract: string, epoch: number) => `totalCumulatedRewards.${contract}.${epoch}`,
   userActiveStake: (address: string, contract: string) => `userActiveStake.${address}.${contract}`,
@@ -92,13 +91,6 @@ export class CacheManagerService {
   async setContractMetadata(contract: string, isVerified: boolean, data: Record<string, any>): Promise<void> {
     const ttl = isVerified ? cacheConfig.getMetaData.verified : cacheConfig.getMetaData.standard;
     await this.set(Keys.metaData(contract), data, ttl);
-  }
-
-  getProfile(identity: string): Promise<Record<string, any>> {
-    return this.cacheManager.get(Keys.getProfile(identity));
-  }
-  async setProfile(identity: string, data: Record<string, any>): Promise<void> {
-    await this.set(Keys.getProfile(identity), data, cacheConfig.getProfile);
   }
 
   /**
