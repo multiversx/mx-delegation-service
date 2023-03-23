@@ -1,9 +1,9 @@
 import { BinaryUtils } from "@elrondnetwork/erdnest";
 import { Injectable } from "@nestjs/common";
+import { getHttpAgent, getHttpsAgent } from "../../../../../utils/http";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
-import { getHttpsAgent, getHttpAgent } from "../../../utils/http";
-import { HttpService } from "../http";
-import { GithubUserInfo } from "./entities/github.user.info";
+import { HttpService } from "../../../http";
+import { ProfileInfo } from "../common/models/profile.info";
 
 @Injectable()
 export class GithubService extends HttpService {
@@ -28,8 +28,8 @@ export class GithubService extends HttpService {
     };
   };
 
-  async getUserInfo(username: string): Promise<GithubUserInfo | undefined> {
-    const response = await this.get<GithubUserInfo>(`users/${username}`);
+  async getUserInfo(username: string): Promise<ProfileInfo | undefined> {
+    const response = await this.get<ProfileInfo>(`users/${username}`);
 
     const profile = response.data;
     if (!profile) {

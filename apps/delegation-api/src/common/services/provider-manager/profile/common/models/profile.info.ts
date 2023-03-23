@@ -1,4 +1,4 @@
-export class GithubUserInfo {
+export class ProfileInfo {
   username: string;
   name: string;
   avatar_url: string;

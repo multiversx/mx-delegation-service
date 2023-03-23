@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { cacheConfig } from "../../../../../config";
 import { CacheManagerService } from "../../../cache-manager/cache-manager.service";
-import { GithubService } from "../../../github/github.service";
+import { GithubService } from "../../profile/github/github.service";
 
 @Injectable()
 export class VerifyIdentityLoaderService {

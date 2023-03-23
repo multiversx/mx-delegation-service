@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { HttpModule } from "../http";
+import { HttpModule } from "../../../http";
 import { GithubService } from "./github.service";
 
 @Module({
