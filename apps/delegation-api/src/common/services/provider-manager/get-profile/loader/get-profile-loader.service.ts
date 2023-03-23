@@ -81,6 +81,7 @@ export class GetProfileLoaderService {
         }
       }
 
+      return githubUserInfo;
     } catch (error) {
       this.logger.error(`Unexpected error when getting profile from keybase`, {
         identity,
