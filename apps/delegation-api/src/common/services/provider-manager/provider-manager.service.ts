@@ -8,13 +8,15 @@ import { ProviderWithData } from '../../../modules/providers/dto/provider-with-d
 import asyncPool from 'tiny-async-pool';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
+import { VerifyIdentityService } from './verify-identity/verify-identity.service';
 
 @Injectable()
 export class ProviderManagerService {
   constructor(
     private elrondProxyService: ElrondProxyService,
     private keyBaseService: KeyBaseService,
-    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
+    @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    private readonly verifyIdentityService: VerifyIdentityService
   ) {
   }
 
@@ -26,7 +28,7 @@ export class ProviderManagerService {
       .map(provider => new ProviderWithData(provider));
   }
 
-  async getProviderInfo(contract: string) : Promise<ProviderContract> {
+  async getProviderInfo(contract: string): Promise<ProviderContract> {
     const providerInfo = new ProviderContract(contract);
     try {
       const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
@@ -37,7 +39,7 @@ export class ProviderManagerService {
       const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
       const identityKey = returnBuffers[2]?.asString();
 
-      const verify = await this.keyBaseService.verifyIdentity(identityKey, contract);
+      const verify = await this.verifyIdentityService.execute(identityKey);
       if (!verify) {
         return providerInfo;
       }
@@ -58,10 +60,10 @@ export class ProviderManagerService {
       if (profile.them.proofs_summary.all) {
         for (const proof of profile.them.proofs_summary.all) {
           switch (proof.proof_type) {
-            case 'twitter' :
+            case 'twitter':
               providerInfo.twitter = proof.service_url;
               break;
-            case 'github' :
+            case 'github':
               providerInfo.github = proof.service_url;
               break;
             case 'dns':
