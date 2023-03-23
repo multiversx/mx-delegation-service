@@ -1,3 +1,4 @@
+import { BinaryUtils } from "@elrondnetwork/erdnest";
 import { Injectable } from "@nestjs/common";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getHttpsAgent, getHttpAgent } from "../../../utils/http";
@@ -44,6 +45,17 @@ export class GithubService extends HttpService {
       twitter_username: profile.twitter_username,
       blog: profile.blog,
     };
+  }
+
+  async getRepoContent(username: string, repository: string, path: string): Promise<string | undefined> {
+    const response = await this.get<{ content: string }>(`repos/${username}/${repository}/contents/${path}`);
+
+    const content = response.data;
+    if (!content) {
+      return undefined;
+    }
+
+    return BinaryUtils.base64Decode(content.content);
   }
 
   get<T = never, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
