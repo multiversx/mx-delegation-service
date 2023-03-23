@@ -42,7 +42,7 @@ export class CacheManagerService {
 
   constructor(
     @Inject(CACHE_MANAGER) protected readonly cacheManager: Cache
-  ) {}
+  ) { }
 
   /**
    * getAllContractAddresses
@@ -186,12 +186,12 @@ export class CacheManagerService {
     return this.cacheManager.get<string>(Keys.undelegatedExpiryTime(address, contract, amount, originalRemainingEpoch, epoch));
   }
   async setUndelegatedExpireTime(
-      address: string,
-      contract: string,
-      amount: string,
-      originalRemainingEpoch: number,
-      epoch: number,
-      expireDate: string): Promise<void> {
+    address: string,
+    contract: string,
+    amount: string,
+    originalRemainingEpoch: number,
+    epoch: number,
+    expireDate: string): Promise<void> {
     const expireTime = Date.parse(expireDate);
     // calculate expire seconds based ont expire Date.
     // add a 10 seconds time for buffer.
@@ -234,11 +234,11 @@ export class CacheManagerService {
    */
   setNetworkConfig(networkConfig: NetworkConfig): Promise<void> {
     return this.set(Keys.networkConfig(),
-     {
-       ...networkConfig,
-       TopUpRewardsGradientPointString: networkConfig.TopUpRewardsGradientPoint.toString(),
-     },
-     cacheConfig.networkConfig);
+      {
+        ...networkConfig,
+        TopUpRewardsGradientPointString: networkConfig.TopUpRewardsGradientPoint.toString(),
+      },
+      cacheConfig.networkConfig);
   }
   async getNetworkConfig(): Promise<NetworkConfig> {
     const result = await this.cacheManager.get<NetworkConfig>(Keys.networkConfig());
@@ -282,7 +282,7 @@ export class CacheManagerService {
     return this.cacheManager.get(key);
   }
 
-  setLongTermCache(key: string, value: any): Promise<void>{
+  setLongTermCache(key: string, value: any): Promise<void> {
     return this.set(key, value, cacheConfig.longTermCache);
   }
 
@@ -335,7 +335,7 @@ export class CacheManagerService {
     await this.set(Keys.contractFeeChanges(forContract), data, cacheConfig.getContractFeeChanges);
   }
 
-  private set(key: string, value: any, ttl: number) {
+  set(key: string, value: any, ttl: number): Promise<void> {
     if (!value) {
       return;
     }
@@ -347,4 +347,7 @@ export class CacheManagerService {
     }
   }
 
+  get<T>(key: string): Promise<T | undefined> {
+    return this.cacheManager.get<T>(key);
+  }
 }
