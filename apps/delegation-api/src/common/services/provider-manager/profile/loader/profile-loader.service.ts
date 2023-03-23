@@ -23,7 +23,9 @@ export class ProfileLoaderService {
     }
 
     const raw = await this.getRaw(identity);
-    await this.cacheManagerService.set(this.getCacheKey(identity), raw, cacheConfig.getProfile);
+    if (raw != null) {
+      await this.cacheManagerService.set(this.getCacheKey(identity), raw, cacheConfig.getProfile);
+    }
 
     return raw;
   }

@@ -14,7 +14,7 @@ export class ProviderManagerService {
   constructor(
     private elrondProxyService: ElrondProxyService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    private readonly getProfileLoaderService: ProfileLoaderService
+    private readonly profileLoaderService: ProfileLoaderService
   ) {
   }
 
@@ -43,7 +43,11 @@ export class ProviderManagerService {
 
       providerInfo.key = identityKey;
 
-      const profile = await this.getProfileLoaderService.load(identityKey);
+      const profile = await this.profileLoaderService.load(identityKey);
+      if (profile == null) {
+        return providerInfo;
+      }
+
       providerInfo.name = profile.name;
       providerInfo.avatar = profile.avatar_url;
       providerInfo.description = profile.bio;

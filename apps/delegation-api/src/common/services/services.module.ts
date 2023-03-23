@@ -5,7 +5,7 @@ import { ProviderManagerModule } from './provider-manager/provider-manager.modul
 import { CacheManagerModule } from './cache-manager/cache-manager.module';
 import { ElrondCommunicationModule } from './elrond-communication/elrond-communication.module';
 import { ApiConfigModule } from './api-config/api.config.module';
-import { CacheWarmerModule } from './cache-warmer/cache-warmer.module';
+// import { CacheWarmerModule } from './cache-warmer/cache-warmer.module';
 
 @Module({
   providers: [RedlockService],
@@ -23,7 +23,7 @@ import { CacheWarmerModule } from './cache-warmer/cache-warmer.module';
     CacheManagerModule,
     ElrondCommunicationModule,
     ApiConfigModule,
-    CacheWarmerModule,
+    // CacheWarmerModule,
   ],
 })
 export class ServicesModule { }
