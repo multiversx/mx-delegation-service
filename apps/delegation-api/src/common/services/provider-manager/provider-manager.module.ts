@@ -12,7 +12,6 @@ import { GetProfileLoaderModule } from './get-profile/loader/get-profile-loader.
   imports: [
     ElrondCommunicationModule,
     CacheManagerModule,
-    VerifyIdentityModule,
     GetProfileLoaderModule,
   ],
   exports: [
