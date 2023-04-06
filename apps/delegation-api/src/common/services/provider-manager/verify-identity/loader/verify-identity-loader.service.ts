@@ -30,7 +30,6 @@ export class VerifyIdentityLoaderService {
   private async getRaw(identity: string): Promise<boolean> {
     try {
       const [elrondResults, multiversxResults] = await Promise.all([
-        this.githubService.getRepoContent(identity, 'elrond', 'keys.json'),
         this.githubService.getRepoContent(identity, 'multiversx', 'keys.json'),
       ]);
 
