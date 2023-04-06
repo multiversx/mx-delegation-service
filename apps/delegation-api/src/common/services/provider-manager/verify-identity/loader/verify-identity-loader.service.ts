@@ -29,15 +29,13 @@ export class VerifyIdentityLoaderService {
 
   private async getRaw(identity: string): Promise<boolean> {
     try {
-      const [elrondResults, multiversxResults] = await Promise.all([
-        this.githubService.getRepoContent(identity, 'multiversx', 'keys.json'),
-      ]);
+      const multiversxResults = await this.githubService.getRepoContent(identity, 'multiversx', 'keys.json');
 
-      if (!elrondResults && !multiversxResults) {
+      if (!multiversxResults) {
         return false;
       }
 
-      const keys = multiversxResults ? JSON.parse(multiversxResults) : JSON.parse(elrondResults);
+      const keys = JSON.parse(multiversxResults)
 
       this.logger.log(`github.com validation: for identity '${identity}', found ${keys.length} keys`);
 
