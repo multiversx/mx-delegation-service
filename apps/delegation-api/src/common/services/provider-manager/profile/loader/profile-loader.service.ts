@@ -1,9 +1,9 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { cacheConfig } from "../../../../../config";
 import { CacheManagerService } from "../../../cache-manager/cache-manager.service";
 import { ProfileInfo } from "../common/models/profile.info";
 import { GithubService } from "../github/github.service";
 import { KeyBaseService } from "../keybase/keybase.service";
+import { Constants } from "@elrondnetwork/erdnest";
 
 @Injectable()
 export class ProfileLoaderService {
@@ -24,7 +24,7 @@ export class ProfileLoaderService {
 
     const raw = await this.getRaw(identity);
     if (raw != null) {
-      await this.cacheManagerService.set(this.getCacheKey(identity), raw, cacheConfig.getProfile);
+      await this.cacheManagerService.set(this.getCacheKey(identity), raw, Constants.oneMonth() * 6);
     }
 
     return raw;
@@ -57,33 +57,35 @@ export class ProfileLoaderService {
 
   private async getFromKeybase(identity: string): Promise<ProfileInfo | undefined> {
     try {
-      const profile = await this.keybaseService.getProfile(identity);
-      if (profile == null) {
+      const data = await this.keybaseService.getProfile(identity);
+      if (data == null) {
         return;
       }
 
-      const profileInfo = new ProfileInfo();
-      profileInfo.name = profile.them?.profile?.full_name;
-      profileInfo.avatar_url = profile.them?.pictures?.primary?.url;
-      profileInfo.bio = profile.them?.profile?.bio;
-      profileInfo.twitter_username = profile.them?.profile?.twitter;
-      profileInfo.location = profile.them?.profile?.location;
-
-      if (profile.them.proofs_summary.all) {
-        for (const proof of profile.them.proofs_summary.all) {
-          switch (proof.proof_type) {
-            case 'twitter':
-              profileInfo.twitter_username = proof.service_url;
-              break;
-            case 'dns':
-            case 'generic_web_site':
-              profileInfo.blog = proof.service_url;
-              break;
-          }
-        }
+      if (data.status.code !== 0) {
+        return;
       }
 
-      return profileInfo;
+      const { profile, pictures, basics } = data.them;
+
+      const { proofs_summary } = data.them || {};
+      const { all } = proofs_summary || {};
+
+      const twitter = all.find((element: any) => element['proof_type'] === 'twitter');
+      const website = all.find(
+        (element: any) => element['proof_type'] === 'dns' || element['proof_type'] === 'generic_web_site'
+      );
+
+      return {
+        username: basics.username,
+        name: profile && profile.full_name ? profile.full_name : undefined,
+        bio: profile && profile.bio ? profile.bio : undefined,
+        avatar_url:
+          pictures && pictures.primary && pictures.primary.url ? pictures.primary.url : undefined,
+        twitter_username: twitter && twitter.service_url ? twitter.service_url : undefined,
+        blog: website && website.service_url ? website.service_url : undefined,
+        location: profile && profile.location ? profile.location : undefined,
+      };
     } catch (error) {
       this.logger.error(`Unexpected error when getting profile from keybase`, {
         identity,
