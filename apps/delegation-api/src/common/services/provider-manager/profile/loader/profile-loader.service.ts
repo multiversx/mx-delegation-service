@@ -95,6 +95,6 @@ export class ProfileLoaderService {
   }
 
   private getCacheKey(identity: string): string {
-    return `getProfile.${identity}`;
+    return `${ProfileLoaderService}.identity:${identity}`;
   }
 }
