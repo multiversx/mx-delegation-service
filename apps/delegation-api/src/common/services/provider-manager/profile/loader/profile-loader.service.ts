@@ -50,7 +50,7 @@ export class ProfileLoaderService {
     } catch (error) {
       this.logger.error(`Unexpected error when getting profile from github`, {
         identity,
-        error,
+        error: error.code,
       });
     }
   }
