@@ -12,6 +12,8 @@ const Keys = {
   allContractAddresses: () => 'allContractAddresses',
   contractConfig: (forContract: string) => `contractConfig.${forContract}`,
   contractFeeChanges: (forContract: string) => `contractFeeChanges.${forContract}`,
+  verifyIdentity: (url: string) => `verifyIdentity.${url}`,
+  getProfile: (identity: string) => `getProfile.${identity}`,
   newContractCreator: (creator: string) => `newContractCreator.${creator}`,
   blsKeys: (auctionContract: string, delegationContract: string, epoch: number) => `blsKeys.${auctionContract}.${delegationContract}.${epoch}`,
   metaData: (contract: string) => `contractMetaData.${contract}`,
@@ -79,6 +81,24 @@ export class CacheManagerService {
   }
   async deleteBlsKeys(auctionContract: string, delegationContract: string, epoch: number): Promise<void> {
     await this.cacheManager.del(Keys.blsKeys(auctionContract, delegationContract, epoch));
+  }
+
+  /**
+   * KeyBase
+   * @param url
+   */
+  getVerifyIdentity(url: string): Promise<boolean> {
+    return this.cacheManager.get<boolean>(Keys.verifyIdentity(url));
+  }
+  async setVerifyIdentity(url: string, isVerified: boolean): Promise<void> {
+    const ttl = isVerified ? cacheConfig.verifyIdentity.verified : cacheConfig.verifyIdentity.standard;
+    await this.set(Keys.verifyIdentity(url), isVerified, ttl);
+  }
+  getProfile(identity: string): Promise<Record<string, any>> {
+    return this.cacheManager.get(Keys.getProfile(identity));
+  }
+  async setProfile(identity: string, data: Record<string, any>): Promise<void> {
+    await this.set(Keys.getProfile(identity), data, cacheConfig.getProfile);
   }
 
   /**
