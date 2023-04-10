@@ -3,7 +3,6 @@ import { ElrondElasticService } from './elrond-elastic.service';
 import { ElrondApiService } from './elrond-api.service';
 import { ElrondProxyService } from './elrond-proxy.service';
 import { RedisModule } from 'nestjs-redis';
-import { KeyBaseService } from './keybase.service';
 import { CacheManagerModule } from '../cache-manager/cache-manager.module';
 import { LoggingModule } from '../../../logging.module';
 import { HttpModule } from '../http';
@@ -13,7 +12,6 @@ import { HttpModule } from '../http';
     ElrondElasticService,
     ElrondApiService,
     ElrondProxyService,
-    KeyBaseService,
   ],
   imports: [
     RedisModule.register({
@@ -34,7 +32,6 @@ import { HttpModule } from '../http';
     ElrondElasticService,
     ElrondApiService,
     ElrondProxyService,
-    KeyBaseService,
   ],
 })
-export class ElrondCommunicationModule {}
+export class ElrondCommunicationModule { }

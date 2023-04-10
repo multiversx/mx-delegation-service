@@ -1,5 +1,9 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": ["node_modules", "dist",
-    "apps/delegation-api/test", "**/*spec.ts"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "apps/delegation-api/test",
+    "**/*spec.ts"
+  ]
 }
