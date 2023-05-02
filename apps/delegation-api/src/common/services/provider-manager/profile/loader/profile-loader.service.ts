@@ -31,6 +31,7 @@ export class ProfileLoaderService {
   }
 
   private async getRaw(identity: string): Promise<ProfileInfo | undefined> {
+    identity = identity.trim();
     const githubIdentity = await this.getFromGithub(identity);
     if (githubIdentity == null) {
       return await this.getFromKeybase(identity);
