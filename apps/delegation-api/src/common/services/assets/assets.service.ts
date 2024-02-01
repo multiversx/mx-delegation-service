@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import fs from "fs";
 import path from "path";
 import simpleGit, { SimpleGit, SimpleGitOptions } from "simple-git";
@@ -6,27 +6,19 @@ import { IdentityInfo } from "./models/identity.info";
 
 @Injectable()
 export class AssetsService {
-  private readonly logger: Logger;
-  private LOCAL_GIT_PATH = 'dist/repos/assets';
-  private REMOTE_GIT_PATH = 'https://github.com/multiversx/mx-assets.git'
-
-  constructor() {
-    this.logger = new Logger(AssetsService.name);
-  }
+  private LOCAL_GIT_PATH = 'dist/repos/mx-assets';
 
   async checkout(): Promise<void> {
-    if (fs.existsSync(this.LOCAL_GIT_PATH)) {
-      fs.rmdirSync(this.LOCAL_GIT_PATH, { recursive: true });
-    }
-
     const options: Partial<SimpleGitOptions> = {
-      baseDir: process.cwd(),
+      baseDir: this.LOCAL_GIT_PATH,
       binary: 'git',
       maxConcurrentProcesses: 6,
     };
     const git: SimpleGit = simpleGit(options);
 
-    await git.clone(this.REMOTE_GIT_PATH, this.LOCAL_GIT_PATH);
+    await git.checkout('master');
+
+    await git.pull('master');
   }
 
   getIdentityInfo(identity: string): IdentityInfo | null {
@@ -41,7 +33,7 @@ export class AssetsService {
   }
 
   private getIdentityAssetsPath(): string {
-    return path.join(process.cwd(), 'dist/repos/assets', this.getRelativePath('identities'));
+    return path.join(process.cwd(), this.LOCAL_GIT_PATH, this.getRelativePath('identities'));
   }
 
   private getIdentityInfoJsonPath(identity: string): string {
