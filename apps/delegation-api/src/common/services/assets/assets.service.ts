@@ -15,7 +15,9 @@ export class AssetsService {
   }
 
   async checkout(): Promise<void> {
-    fs.rmdirSync(this.LOCAL_GIT_PATH, { recursive: true });
+    if (fs.existsSync(this.LOCAL_GIT_PATH)) {
+      fs.rmdirSync(this.LOCAL_GIT_PATH, { recursive: true });
+    }
 
     const options: Partial<SimpleGitOptions> = {
       baseDir: process.cwd(),

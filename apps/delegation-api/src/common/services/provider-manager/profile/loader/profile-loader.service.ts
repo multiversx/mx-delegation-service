@@ -42,19 +42,19 @@ export class ProfileLoaderService {
 
   private getFromGithub(identity: string): ProfileInfo | undefined {
     try {
-      const profile = this.assetsService.getIdentityInfo(identity);
-      if (profile == null || profile.name == null || profile.description == null) {
+      const identityInfo = this.assetsService.getIdentityInfo(identity);
+      if (identityInfo == null || identityInfo.name == null || identityInfo.description == null) {
         return;
       }
 
       return {
         username: identity,
-        name: profile.name,
-        bio: profile.description,
+        name: identityInfo.name,
+        bio: identityInfo.description,
         avatar_url: `https://raw.githubusercontent.com/multiversx/mx-assets/master/identities/${identity}/logo.png`,
-        twitter_username: profile.twitter,
-        location: profile.location,
-        blog: profile.website,
+        twitter_username: identityInfo.twitter,
+        location: identityInfo.location,
+        blog: identityInfo.website,
       };
     } catch (error) {
       this.logger.error(`Unexpected error when getting profile from github`, {
