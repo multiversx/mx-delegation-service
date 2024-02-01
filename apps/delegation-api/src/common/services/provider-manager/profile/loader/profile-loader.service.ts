@@ -1,17 +1,17 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { CacheManagerService } from "../../../cache-manager/cache-manager.service";
 import { ProfileInfo } from "../common/models/profile.info";
-import { GithubService } from "../github/github.service";
 import { KeyBaseService } from "../keybase/keybase.service";
 import { Constants } from "@elrondnetwork/erdnest";
+import { AssetsService } from "../../../assets/assets.service";
 
 @Injectable()
 export class ProfileLoaderService {
   private readonly logger: Logger;
   constructor(
-    private readonly githubService: GithubService,
     private readonly keybaseService: KeyBaseService,
-    private readonly cacheManagerService: CacheManagerService
+    private readonly cacheManagerService: CacheManagerService,
+    private readonly assetsService: AssetsService,
   ) {
     this.logger = new Logger(ProfileLoaderService.name);
   }
@@ -32,7 +32,7 @@ export class ProfileLoaderService {
 
   private async getRaw(identity: string): Promise<ProfileInfo | undefined> {
     identity = identity.trim();
-    const githubIdentity = await this.getFromGithub(identity);
+    const githubIdentity = this.getFromGithub(identity);
     if (githubIdentity == null) {
       return await this.getFromKeybase(identity);
     }
@@ -40,14 +40,22 @@ export class ProfileLoaderService {
     return githubIdentity;
   }
 
-  private async getFromGithub(identity: string): Promise<ProfileInfo | undefined> {
+  private getFromGithub(identity: string): ProfileInfo | undefined {
     try {
-      const profile = await this.githubService.getUserInfo(identity);
-      if (profile == null || profile.name == null || profile.avatar_url == null || profile.bio == null) {
-        return null;
+      const profile = this.assetsService.getIdentityInfo(identity);
+      if (profile == null || profile.name == null || profile.description == null) {
+        return;
       }
 
-      return profile;
+      return {
+        username: identity,
+        name: profile.name,
+        bio: profile.description,
+        avatar_url: `https://raw.githubusercontent.com/multiversx/mx-assets/master/identities/${identity}/logo.png`,
+        twitter_username: profile.twitter,
+        location: profile.location,
+        blog: profile.website,
+      };
     } catch (error) {
       this.logger.error(`Unexpected error when getting profile from github`, {
         identity,
