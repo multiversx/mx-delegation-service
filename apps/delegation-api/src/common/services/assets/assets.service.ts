@@ -8,6 +8,7 @@ import { IdentityInfo } from "./models/identity.info";
 export class AssetsService {
   private LOCAL_GIT_PATH = 'dist/repos/mx-assets';
 
+
   async checkout(): Promise<void> {
     const options: Partial<SimpleGitOptions> = {
       baseDir: this.LOCAL_GIT_PATH,
