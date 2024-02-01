@@ -515,13 +515,6 @@
   dependencies:
     bech32 "^2.0.0"
 
-"@elrondnetwork/transaction-processor@^0.1.26":
-  version "0.1.26"
-  resolved "https://registry.yarnpkg.com/@elrondnetwork/transaction-processor/-/transaction-processor-0.1.26.tgz#d5e6238983501fa075f99cf7e85982a1368671ce"
-  integrity sha512-IBqPaB6mzBok26kYFKF6r017MMPKYJ9u5ayNqzJ+BqKtx+91op92wNwKkJJ6ZuKuV2ertRdtzna8FrSZOEPtYg==
-  dependencies:
-    axios "^0.21.1"
-
 "@eslint/eslintrc@^0.4.3":
   version "0.4.3"
   resolved "https://registry.yarnpkg.com/@eslint/eslintrc/-/eslintrc-0.4.3.tgz#9e42981ef035beb3dd49add17acb96e8ff6f394c"
@@ -855,6 +848,13 @@
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/@kwsites/promise-deferred/-/promise-deferred-1.1.1.tgz#8ace5259254426ccef57f3175bc64ed7095ed919"
   integrity sha512-GaHYm+c0O9MjZRu0ongGBRbinu8gVAMd2UZjji6jVmqKtZluZnptXGWhz1E8j8D2HJ3f/yMxKAUC0b+57wncIw==
+
+"@multiversx/sdk-transaction-processor@^0.1.30":
+  version "0.1.30"
+  resolved "https://registry.yarnpkg.com/@multiversx/sdk-transaction-processor/-/sdk-transaction-processor-0.1.30.tgz#c24f4c94e3f0cc9143e240f5a7750f7435c9020d"
+  integrity sha512-QECon0JLabGFEcAvzbpIp5dRvEarZRs5YPHgot274XGare4KCccN2QJhzpVzos9XOsyb6iDRjrMibrHDe1mfWw==
+  dependencies:
+    axios "^0.21.1"
 
 "@nestjs-modules/ioredis@^1.0.1":
   version "1.0.1"

@@ -1,4 +1,4 @@
-import { ShardTransaction, TransactionProcessor } from '@elrondnetwork/transaction-processor';
+import { ShardTransaction, TransactionProcessor } from '@multiversx/sdk-transaction-processor';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { elrondConfig } from '../../../config';
