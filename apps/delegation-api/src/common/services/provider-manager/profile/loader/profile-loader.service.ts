@@ -43,7 +43,7 @@ export class ProfileLoaderService {
   private getFromGithub(identity: string): ProfileInfo | undefined {
     try {
       const identityInfo = this.assetsService.getIdentityInfo(identity);
-      if (identityInfo == null || identityInfo.name == null || identityInfo.description == null) {
+      if (identityInfo == null || identityInfo.name == null) {
         return;
       }
 
