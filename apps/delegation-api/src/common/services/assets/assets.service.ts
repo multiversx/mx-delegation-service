@@ -33,7 +33,7 @@ export class AssetsService {
     return info;
   }
 
-  private getIdentityAssetsPath(): string {
+  getIdentityAssetsPath(): string {
     return path.join(process.cwd(), this.LOCAL_GIT_PATH, this.getRelativePath('identities'));
   }
 
