@@ -3,6 +3,7 @@ import { AssetsService } from "../../assets/assets.service";
 import { readdir } from "fs/promises";
 import { CacheManagerService } from "../../cache-manager/cache-manager.service";
 import { cacheConfig } from "../../../../config";
+import { AddressUtils } from "@elrondnetwork/erdnest";
 
 @Injectable()
 export class IdentitiesLoaderService {
@@ -22,6 +23,10 @@ export class IdentitiesLoaderService {
 
       const owners = identityInfo.owners;
       for (const owner of owners) {
+        if (!AddressUtils.isSmartContractAddress(owner)) {
+          continue;
+        }
+
         await this.cacheManagerService.set(this.getCacheKey(owner), identity, cacheConfig.getMetaData.verified);
       }
     }
