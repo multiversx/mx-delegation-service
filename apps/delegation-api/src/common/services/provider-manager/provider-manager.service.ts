@@ -32,16 +32,12 @@ export class ProviderManagerService {
     const providerInfo = new ProviderContract(contract);
     try {
       const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
+      let identityKey = await this.identitiesLoaderService.loadByOwner(contract);
       if (contractMeta.returnMessage !== '') {
-        return providerInfo;
-      }
-
-      const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
-      let identityKey: string | null = null;
-      if (returnBuffers[2] != null) {
-        identityKey = returnBuffers[2].asString();
-      } else {
-        identityKey = await this.identitiesLoaderService.loadByOwner(contract);
+        const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
+        if (returnBuffers[2] != null) {
+          identityKey = returnBuffers[2].asString();
+        }
       }
 
       // if provider is verified extend ttl
