@@ -24,7 +24,7 @@ export class ProfileLoaderService {
 
     const raw = await this.getRaw(identity);
     if (raw != null) {
-      await this.cacheManagerService.set(this.getCacheKey(identity), raw, Constants.oneMonth() * 6);
+      await this.cacheManagerService.set(this.getCacheKey(identity), raw, Constants.oneMinute() * 15);
     }
 
     return raw;
@@ -104,6 +104,6 @@ export class ProfileLoaderService {
   }
 
   private getCacheKey(identity: string): string {
-    return `${ProfileLoaderService.name}.v2.identity:${identity}`;
+    return `${ProfileLoaderService.name}.v3.identity:${identity}`;
   }
 }
