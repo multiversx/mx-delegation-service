@@ -40,9 +40,9 @@ export class ProviderManagerService {
         }
       }
 
-      // if provider is verified extend ttl
-      // TODO: find a better solution for this. For now it will just extend the cache indefinitely, which is not good
-      // await this.cacheManagerService.setContractMetadata(contract, true, QueryResponseHelper.getDataForCache(contractMeta));
+      if (identityKey == null) {
+        return providerInfo;
+      }
 
       providerInfo.key = identityKey;
 
