@@ -8,13 +8,15 @@ import asyncPool from 'tiny-async-pool';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { ProfileLoaderService } from './profile/loader/profile-loader.service';
+import { IdentitiesLoaderService } from './identities-loader/identities-loader.service';
 
 @Injectable()
 export class ProviderManagerService {
   constructor(
     private elrondProxyService: ElrondProxyService,
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
-    private readonly profileLoaderService: ProfileLoaderService
+    private readonly profileLoaderService: ProfileLoaderService,
+    private readonly identitiesLoaderService: IdentitiesLoaderService,
   ) {
   }
 
@@ -30,16 +32,17 @@ export class ProviderManagerService {
     const providerInfo = new ProviderContract(contract);
     try {
       const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
+      let identityKey = await this.identitiesLoaderService.loadByOwner(contract);
       if (contractMeta.returnMessage !== '') {
-        return providerInfo;
+        const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
+        if (returnBuffers[2] != null) {
+          identityKey = returnBuffers[2].asString();
+        }
       }
 
-      const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
-      const identityKey = returnBuffers[2]?.asString();
-
-      // if provider is verified extend ttl
-      // TODO: find a better solution for this. For now it will just extend the cache indefinitely, which is not good
-      // await this.cacheManagerService.setContractMetadata(contract, true, QueryResponseHelper.getDataForCache(contractMeta));
+      if (identityKey == null) {
+        return providerInfo;
+      }
 
       providerInfo.key = identityKey;
 

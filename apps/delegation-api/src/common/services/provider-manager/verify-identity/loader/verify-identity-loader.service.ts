@@ -1,14 +1,14 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { cacheConfig } from "../../../../../config";
 import { CacheManagerService } from "../../../cache-manager/cache-manager.service";
-import { GithubService } from "../../profile/github/github.service";
+import { AssetsService } from "../../../assets/assets.service";
 
 @Injectable()
 export class VerifyIdentityLoaderService {
   private readonly logger: Logger;
   constructor(
     private readonly cacheManagerService: CacheManagerService,
-    private readonly githubService: GithubService,
+    private readonly assetsService: AssetsService,
   ) {
     this.logger = new Logger(VerifyIdentityLoaderService.name);
   }
@@ -19,7 +19,7 @@ export class VerifyIdentityLoaderService {
       return cached;
     }
 
-    const verified = await this.getRaw(identity);
+    const verified = this.getRaw(identity);
 
     const ttl = verified ? cacheConfig.verifyIdentity.verified : cacheConfig.verifyIdentity.standard;
     await this.cacheManagerService.set(this.getCacheKey(identity), verified, ttl);
@@ -27,15 +27,11 @@ export class VerifyIdentityLoaderService {
     return verified;
   }
 
-  private async getRaw(identity: string): Promise<boolean> {
+  getRaw(identity: string): boolean {
     try {
-      const multiversxResults = await this.githubService.getRepoContent(identity, 'multiversx', 'keys.json');
+      const info = this.assetsService.getIdentityInfo(identity);
 
-      if (!multiversxResults) {
-        return false;
-      }
-
-      const keys = JSON.parse(multiversxResults)
+      const keys = info.owners;
 
       this.logger.log(`github.com validation: for identity '${identity}', found ${keys.length} keys`);
 

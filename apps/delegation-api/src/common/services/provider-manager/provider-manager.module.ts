@@ -3,15 +3,17 @@ import { ElrondCommunicationModule } from '../elrond-communication/elrond-commun
 import { ProviderManagerService } from './provider-manager.service';
 import { CacheManagerModule } from '../cache-manager/cache-manager.module';
 import { ProfileLoaderModule } from './profile/loader/profile-loader.module';
+import { IdentitiesLoaderModule } from './identities-loader/identities-loader.module';
 
 @Module({
-  providers: [
-    ProviderManagerService,
-  ],
   imports: [
     ElrondCommunicationModule,
     CacheManagerModule,
     ProfileLoaderModule,
+    IdentitiesLoaderModule,
+  ],
+  providers: [
+    ProviderManagerService,
   ],
   exports: [
     ProviderManagerService,
