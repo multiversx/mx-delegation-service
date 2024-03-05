@@ -42,7 +42,7 @@ export class DelegationAprService {
       networkStake,
       networkConfig,
       stakedBalance,
-      ] = await Promise.all(
+    ] = await Promise.all(
       [
         this.elrondProxyService.getGlobalDelegationMethod('getTotalActiveStake', delegationContract),
         this.elrondProxyService.getBlsKeys(delegationContract),
@@ -110,5 +110,12 @@ export class DelegationAprService {
     const apr = (anualPercentageRate * (1 - serviceFee / 100 / 100) * 100);
     await this.cacheManager.setProviderAPR(delegationContract, serviceFee, apr);
     return apr;
+  }
+
+  private computenetworkTopUpStake(networkTotalStake: number, networkBaseStake: number, networkStake, stakePerNode: number) {
+    const networkTopUpStake =
+      networkTotalStake -
+      networkBaseStake -
+      networkStake.QueueSize * stakePerNode;
   }
 }
