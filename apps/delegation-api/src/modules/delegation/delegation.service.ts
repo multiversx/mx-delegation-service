@@ -8,7 +8,7 @@ import { Delegation } from './dto/delegation.dto';
 import { QueryResponseHelper } from '../../common/helpers';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
-import { NetworkStatus } from '@elrondnetwork/erdjs-network-providers';
+import { NetworkStatus } from '@multiversx/sdk-network-providers';
 
 @Injectable()
 export class DelegationService {
@@ -29,20 +29,20 @@ export class DelegationService {
     await this.cacheManagerService.deleteUserUnBondable(address, contract, currentEpoch);
   }
 
-  async getAllContractDataForUser(address: string, forceRefresh?: boolean) : Promise<Delegation[]> {
+  async getAllContractDataForUser(address: string, forceRefresh?: boolean): Promise<Delegation[]> {
     if (forceRefresh) {
       await this.cacheManagerService.deleteAddressActiveContracts(address);
     }
 
     let allActiveContracts = await this.cacheManagerService.getAddressActiveContracts(address);
     if (!allActiveContracts) {
-      allActiveContracts =  await this.elrondElasticService.getAddressActiveContracts(address);
+      allActiveContracts = await this.elrondElasticService.getAddressActiveContracts(address);
     }
 
     await this.cacheManagerService.setAddressActiveContracts(address, allActiveContracts);
 
     const response = [];
-    for( const activeContract of allActiveContracts) {
+    for (const activeContract of allActiveContracts) {
       if (forceRefresh) {
         await this.invalidateUserInfoForContract(address, activeContract.contract);
       }
@@ -133,7 +133,7 @@ export class DelegationService {
 
       const undelegatedList = scResponse.getReturnDataParts();
       const results = [];
-      for(let index = 0; index < undelegatedList.length - 1; index = index + 2) {
+      for (let index = 0; index < undelegatedList.length - 1; index = index + 2) {
         const undelegatedAmountBuffer = undelegatedList[index];
         const remainingEpochsBuffer = undelegatedList[index + 1];
         const remainingEpochsNumber = remainingEpochsBuffer.asNumber();
@@ -207,10 +207,10 @@ export class DelegationService {
   }
 
   private calculateUndelegatedSecondsLeft(
-      roundsPerEpoch: number,
-      roundDuration: number,
-      roundsPassedInCurrentEpoch: number,
-      remainingEpochs: number): number {
+    roundsPerEpoch: number,
+    roundDuration: number,
+    roundsPassedInCurrentEpoch: number,
+    remainingEpochs: number): number {
     let roundsCurrentEpoch = roundsPerEpoch - roundsPassedInCurrentEpoch;
     if (roundsCurrentEpoch < 0) roundsCurrentEpoch = 0;
     let roundsCompletedEpochs = 0;
@@ -226,7 +226,7 @@ export class DelegationService {
     return secondsLeft;
   }
   async getDelegationForUser(contract: string, address: string): Promise<Delegation | null> {
-    const delegation =  await this.elrondElasticService.getDelegationForAddressAndContract(address, contract);
+    const delegation = await this.elrondElasticService.getDelegationForAddressAndContract(address, contract);
     return delegation ? this.getContractDataForUser(contract, address) : null;
   }
 
@@ -242,14 +242,14 @@ export class DelegationService {
       claimableRewards,
       userUndelegatedList,
     ] =
-    await Promise.all([
-      this.getUserUnBondable(address, contract),
-      this.getUserActiveStake(contract, address),
-      this.getClaimableRewards(address, contract),
-      this.getUserUnDelegatedList(contract, address),
-    ]);
+      await Promise.all([
+        this.getUserUnBondable(address, contract),
+        this.getUserActiveStake(contract, address),
+        this.getClaimableRewards(address, contract),
+        this.getUserUnDelegatedList(contract, address),
+      ]);
 
-   if (!userUnBondable && !userActiveStake && !claimableRewards) {
+    if (!userUnBondable && !userActiveStake && !claimableRewards) {
       return;
     }
 

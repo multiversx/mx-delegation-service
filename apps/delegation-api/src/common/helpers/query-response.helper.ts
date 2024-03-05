@@ -1,4 +1,4 @@
-import { ContractQueryResponse } from '@elrondnetwork/erdjs-network-providers';
+import { ContractQueryResponse } from '@multiversx/sdk-network-providers';
 
 export class QueryResponseHelper {
 

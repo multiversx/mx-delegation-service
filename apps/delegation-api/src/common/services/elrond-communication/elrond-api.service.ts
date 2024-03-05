@@ -2,7 +2,7 @@ import { elrondConfig } from '../../../config';
 import { Injectable } from '@nestjs/common';
 import { CacheManagerService } from '../cache-manager/cache-manager.service';
 import BigNumber from 'bignumber.js';
-import { ApiNetworkProvider, NetworkStake } from '@elrondnetwork/erdjs-network-providers';
+import { ApiNetworkProvider, NetworkStake } from '@multiversx/sdk-network-providers';
 
 @Injectable()
 export class ElrondApiService {
@@ -27,7 +27,7 @@ export class ElrondApiService {
       return networkStake;
     }
 
-    const result =  await this.proxy.getNetworkStakeStatistics();
+    const result = await this.proxy.getNetworkStakeStatistics();
     await this.cacheManager.setNetworkStake({
       ...result,
       TotalStaked: result.TotalStaked.toString(),
