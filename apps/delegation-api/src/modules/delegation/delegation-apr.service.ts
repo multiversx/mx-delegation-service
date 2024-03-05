@@ -4,6 +4,7 @@ import { ElrondProxyService } from '../../common/services/elrond-communication/e
 import { ElrondApiService } from '../../common/services/elrond-communication/elrond-api.service';
 import { elrondConfig } from '../../config';
 import { CacheManagerService } from '../../common/services/cache-manager/cache-manager.service';
+import { NetworkStake } from '@multiversx/sdk-network-providers/out';
 
 const denominateValue = (value: string) => {
   const denominatedValueString = denominate({
@@ -78,7 +79,7 @@ export class DelegationAprService {
     const networkTopUpStake =
       networkTotalStake -
       networkBaseStake -
-      networkStake.QueueSize * stakePerNode;
+      this.loadInactiveValidatorsStake(networkStake, stakePerNode);
 
     const topUpReward =
       ((2 * topUpRewardsLimit) / Math.PI) *
@@ -87,10 +88,11 @@ export class DelegationAprService {
         (2 * 2000000)
       );
     const baseReward = rewardsPerEpochWithoutProtocolSustainability - topUpReward;
-    const allNodes = blsKeys.filter(key => key.asString() === 'staked' || key.asString() === 'jailed' || key.asString() === 'queued')
-      .length;
+    const nodeStatuses = ['staked', 'jailed', 'queued', 'auction', 'qualified'];
+    const allNodes = blsKeys.filter(key => nodeStatuses.includes(key.asString())).length;
 
-    const allActiveNodes = blsKeys.filter(key => key.asString() === 'staked').length;
+    const activeNodeStatuses = ['staked', 'auction', 'qualified'];
+    const allActiveNodes = blsKeys.filter(key => activeNodeStatuses.includes(key.asString())).length;
     if (allActiveNodes <= 0) {
       return 0;
     }
@@ -112,10 +114,11 @@ export class DelegationAprService {
     return apr;
   }
 
-  private computenetworkTopUpStake(networkTotalStake: number, networkBaseStake: number, networkStake, stakePerNode: number) {
-    const networkTopUpStake =
-      networkTotalStake -
-      networkBaseStake -
-      networkStake.QueueSize * stakePerNode;
+  private loadInactiveValidatorsStake(networkStake: NetworkStake, stakePerNode: number): number {
+    if (networkStake['InactiveValidators'] != null) {
+      return networkStake['InactiveValidators'] * stakePerNode;
+    }
+
+    return networkStake.QueueSize * stakePerNode;
   }
 }
