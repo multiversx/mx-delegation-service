@@ -31,20 +31,12 @@ export class ProviderManagerService {
   async getProviderInfo(contract: string): Promise<ProviderContract> {
     const providerInfo = new ProviderContract(contract);
     try {
-      const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
-      let identityKey = await this.identitiesLoaderService.loadByOwner(contract);
+      const identityKey = await this.loadIdentity(contract);
       this.logger.info(`Contract ${contract} Identity Key`, {
         contract,
         identityKey,
         providerInfo,
-        contractMeta,
       });
-      if (contractMeta.returnMessage !== '') {
-        const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
-        if (returnBuffers[2] != null) {
-          identityKey = returnBuffers[2].asString();
-        }
-      }
 
       this.logger.info(`Contract ${contract} loaded Identity Key`, {
         identityKey,
@@ -81,6 +73,22 @@ export class ProviderManagerService {
       });
       return providerInfo;
     }
+  }
+
+  private async loadIdentity(contract: string): Promise<string | null> {
+    let result = null;
+    const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
+    const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
+    if (returnBuffers != null && returnBuffers.length > 2 && returnBuffers[2] != null) {
+      result = returnBuffers[2].asString();
+    }
+
+    const localIdentityKey = await this.identitiesLoaderService.loadByOwner(contract);
+    if (localIdentityKey != null && result !== localIdentityKey) {
+      result = localIdentityKey;
+    }
+
+    return result;
   }
 
   async getAllContractAddresses(): Promise<string[]> {
