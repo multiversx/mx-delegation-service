@@ -37,6 +37,7 @@ export class ProviderManagerService {
         contract,
         identityKey,
         providerInfo,
+        contractMeta,
       });
       if (contractMeta.returnMessage !== '') {
         const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
