@@ -4,5 +4,5 @@ export class IdentityInfo {
   website: string;
   twitter?: string;
   location?: string;
-  owners: string[];
+  owners?: string[];
 }

@@ -31,15 +31,7 @@ export class ProviderManagerService {
   async getProviderInfo(contract: string): Promise<ProviderContract> {
     const providerInfo = new ProviderContract(contract);
     try {
-      const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
-      let identityKey = await this.identitiesLoaderService.loadByOwner(contract);
-      if (contractMeta.returnMessage !== '') {
-        const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
-        if (returnBuffers[2] != null) {
-          identityKey = returnBuffers[2].asString();
-        }
-      }
-
+      const identityKey = await this.loadIdentity(contract);
       if (identityKey == null) {
         return providerInfo;
       }
@@ -48,6 +40,10 @@ export class ProviderManagerService {
 
       const profile = await this.profileLoaderService.load(identityKey);
       if (profile == null) {
+        this.logger.error('Profile not found', {
+          contract,
+          identityKey,
+        });
         return providerInfo;
       }
 
@@ -67,6 +63,22 @@ export class ProviderManagerService {
       });
       return providerInfo;
     }
+  }
+
+  private async loadIdentity(contract: string): Promise<string | null> {
+    let result = null;
+    const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
+    const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
+    if (returnBuffers != null && returnBuffers.length > 2 && returnBuffers[2] != null) {
+      result = returnBuffers[2].asString();
+    }
+
+    const localIdentityKey = await this.identitiesLoaderService.loadByOwner(contract);
+    if (localIdentityKey != null && result !== localIdentityKey) {
+      result = localIdentityKey;
+    }
+
+    return result;
   }
 
   async getAllContractAddresses(): Promise<string[]> {
