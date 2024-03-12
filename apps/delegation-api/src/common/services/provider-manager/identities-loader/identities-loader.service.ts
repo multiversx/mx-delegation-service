@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { AssetsService } from "../../assets/assets.service";
 import { readdir } from "fs/promises";
 import { CacheManagerService } from "../../cache-manager/cache-manager.service";
@@ -6,7 +6,7 @@ import { cacheConfig } from "../../../../config";
 import { AddressUtils } from "@elrondnetwork/erdnest";
 
 @Injectable()
-export class IdentitiesLoaderService {
+export class IdentitiesLoaderService implements OnModuleInit {
   private readonly logger: Logger;
   constructor(
     private readonly assetsService: AssetsService,
@@ -14,23 +14,28 @@ export class IdentitiesLoaderService {
   ) {
     this.logger = new Logger(IdentitiesLoaderService.name);
   }
+  async onModuleInit(): Promise<void> {
+    await this.refreshAll();
+  }
 
   async refreshAll(): Promise<void> {
     const distinctIdentities = await this.getDistictIdentities();
-    console.log(`Distinct identities: ${distinctIdentities.length}`, {
-      distinctIdentities,
-    });
 
     for (const identity of distinctIdentities) {
-      console.log(`Refreshing identity ${identity}`);
+      this.logger.log(`Refreshing identity ${identity}`);
       const identityInfo = this.assetsService.getIdentityInfo(identity);
-      console.log(`Identity info ${identity}`, {
+      this.logger.log(`Identity info ${identity}`, {
         identityInfo,
       });
+
       const owners = identityInfo.owners;
+      if (owners == null) {
+        this.logger.warn(`Identity ${identity} has no owners`);
+        continue;
+      }
       for (const owner of owners) {
         if (!AddressUtils.isSmartContractAddress(owner)) {
-          console.log(`Addess ${owner} is not smart contract`);
+          this.logger.warn(`Addess ${owner} is not smart contract`);
           continue;
         }
 
