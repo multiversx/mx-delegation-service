@@ -17,6 +17,9 @@ export class IdentitiesLoaderService {
 
   async refreshAll(): Promise<void> {
     const distinctIdentities = await this.getDistictIdentities();
+    this.logger.log(`Distinct identities: ${distinctIdentities.length}`, {
+      distinctIdentities,
+    });
 
     for (const identity of distinctIdentities) {
       this.logger.log(`Refreshing identity ${identity}`);
