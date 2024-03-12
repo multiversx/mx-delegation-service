@@ -17,20 +17,20 @@ export class IdentitiesLoaderService {
 
   async refreshAll(): Promise<void> {
     const distinctIdentities = await this.getDistictIdentities();
-    this.logger.log(`Distinct identities: ${distinctIdentities.length}`, {
+    console.log(`Distinct identities: ${distinctIdentities.length}`, {
       distinctIdentities,
     });
 
     for (const identity of distinctIdentities) {
-      this.logger.log(`Refreshing identity ${identity}`);
+      console.log(`Refreshing identity ${identity}`);
       const identityInfo = this.assetsService.getIdentityInfo(identity);
-      this.logger.log(`Identity info ${identity}`, {
+      console.log(`Identity info ${identity}`, {
         identityInfo,
       });
       const owners = identityInfo.owners;
       for (const owner of owners) {
         if (!AddressUtils.isSmartContractAddress(owner)) {
-          this.logger.error(`Addess ${owner} is not smart contract`);
+          console.log(`Addess ${owner} is not smart contract`);
           continue;
         }
 
