@@ -46,6 +46,10 @@ export class ProviderManagerService {
         }
       }
 
+      this.logger.info(`Contract ${contract} loaded Identity Key`, {
+        identityKey,
+      });
+
       if (identityKey == null) {
         return providerInfo;
       }
