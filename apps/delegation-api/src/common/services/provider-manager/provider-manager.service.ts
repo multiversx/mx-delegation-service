@@ -74,12 +74,20 @@ export class ProviderManagerService {
   private async loadIdentity(contract: string): Promise<string | null> {
     let result = null;
     const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
+    console.log("Contract Meta", {
+      contract,
+      contractMeta,
+    });
     const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
     if (returnBuffers != null && returnBuffers.length > 2 && returnBuffers[2] != null) {
       result = returnBuffers[2].asString();
     }
 
     const localIdentityKey = await this.identitiesLoaderService.loadByOwner(contract);
+    console.log("Local Identity Key", {
+      contract,
+      localIdentityKey,
+    });
     if (localIdentityKey != null && result !== localIdentityKey) {
       result = localIdentityKey;
     }
