@@ -44,6 +44,10 @@ export class ProfileLoaderService {
     try {
       const identityInfo = this.assetsService.getIdentityInfo(identity);
       if (identityInfo == null || identityInfo.name == null) {
+        this.logger.error(`Identity ${identity} not found in Github`, {
+          identity,
+          identityInfo,
+        });
         return;
       }
 
@@ -68,10 +72,16 @@ export class ProfileLoaderService {
     try {
       const data = await this.keybaseService.getProfile(identity);
       if (data == null) {
+        this.logger.error(`Identity ${identity} not found in Keybase`, {
+          identity,
+        });
         return;
       }
 
       if (data.status.code !== 0) {
+        this.logger.error(`Identity ${identity} not found in Keybase`, {
+          identity,
+        });
         return;
       }
 

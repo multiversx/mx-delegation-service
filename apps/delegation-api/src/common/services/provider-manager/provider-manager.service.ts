@@ -33,6 +33,11 @@ export class ProviderManagerService {
     try {
       const contractMeta = await this.elrondProxyService.getContractMetaData(contract);
       let identityKey = await this.identitiesLoaderService.loadByOwner(contract);
+      this.logger.info(`Contract ${contract} Identity Key`, {
+        contract,
+        identityKey,
+        providerInfo,
+      });
       if (contractMeta.returnMessage !== '') {
         const returnBuffers: Buffer[] = contractMeta.getReturnDataParts();
         if (returnBuffers[2] != null) {
@@ -48,6 +53,10 @@ export class ProviderManagerService {
 
       const profile = await this.profileLoaderService.load(identityKey);
       if (profile == null) {
+        this.logger.error('Profile not found', {
+          contract,
+          identityKey,
+        });
         return providerInfo;
       }
 
