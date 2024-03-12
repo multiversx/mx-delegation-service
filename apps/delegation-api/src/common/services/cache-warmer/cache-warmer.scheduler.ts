@@ -23,7 +23,7 @@ export class CacheWarmerScheduler {
     await this.assetsService.checkout();
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async refreshAllIdentities() {
     await this.identitiesLoaderService.refreshAll();
   }
