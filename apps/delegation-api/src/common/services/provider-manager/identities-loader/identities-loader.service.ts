@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { AssetsService } from "../../assets/assets.service";
 import { readdir } from "fs/promises";
 import { CacheManagerService } from "../../cache-manager/cache-manager.service";
@@ -6,16 +6,13 @@ import { cacheConfig } from "../../../../config";
 import { AddressUtils } from "@elrondnetwork/erdnest";
 
 @Injectable()
-export class IdentitiesLoaderService implements OnModuleInit {
+export class IdentitiesLoaderService {
   private readonly logger: Logger;
   constructor(
     private readonly assetsService: AssetsService,
     private readonly cacheManagerService: CacheManagerService,
   ) {
     this.logger = new Logger(IdentitiesLoaderService.name);
-  }
-  async onModuleInit(): Promise<void> {
-    await this.refreshAll();
   }
 
   async refreshAll(): Promise<void> {
@@ -33,6 +30,7 @@ export class IdentitiesLoaderService implements OnModuleInit {
         this.logger.warn(`Identity ${identity} has no owners`);
         continue;
       }
+
       for (const owner of owners) {
         if (!AddressUtils.isSmartContractAddress(owner)) {
           this.logger.warn(`Addess ${owner} is not smart contract`);
