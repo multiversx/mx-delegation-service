@@ -1,7 +1,8 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { InfoController } from './info.controller';
 import { InfoService } from './info.service';
 import * as redisStore from 'cache-manager-ioredis';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -21,4 +22,4 @@ import * as redisStore from 'cache-manager-ioredis';
   controllers: [InfoController],
   providers: [InfoService],
 })
-export class InfoModule {}
+export class InfoModule { }

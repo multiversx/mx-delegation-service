@@ -1,16 +1,17 @@
-import { CacheInterceptor, CacheTTL, Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { DelegationService } from './delegation.service';
 import { Delegation } from './dto/delegation.dto';
 import { LongTermCacheInterceptor } from '../../interceptors/long-term-cache.interceptor';
 import { ParseOptionalBoolPipe } from '../../utils/pipes/parse.optional.bool.pipe';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 
 @Controller('accounts')
 @ApiTags('Accounts')
 export class DelegationController {
   constructor(
     private delegationService: DelegationService
-  ) {}
+  ) { }
 
   @Get(':address/delegations')
   @ApiOkResponse({
@@ -23,7 +24,7 @@ export class DelegationController {
   getActiveContractsAndDataForUser(
     @Param('address') address: string,
     @Query('forceRefresh', new ParseOptionalBoolPipe) forceRefresh: boolean | undefined,
-  ) : Promise<Delegation[]> {
+  ): Promise<Delegation[]> {
     return this.delegationService.getAllContractDataForUser(address, forceRefresh);
   }
 
@@ -36,7 +37,7 @@ export class DelegationController {
   getContractDataForUser(
     @Param('contract') contract: string,
     @Param('address') address: string,
-  ) : Promise<Delegation> {
+  ): Promise<Delegation> {
     return this.delegationService.getDelegationForUser(contract, address);
   }
 

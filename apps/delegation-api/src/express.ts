@@ -80,7 +80,7 @@ export class Express {
 
     this.setKeepAlive(app);
 
-    await app.startAllMicroservicesAsync();
+    await app.startAllMicroservices();
   }
 
   private setKeepAlive(app: NestExpressApplication): void {
