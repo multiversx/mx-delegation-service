@@ -6,7 +6,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { NestInterceptor, ValidationPipe } from '@nestjs/common';
-import { LoggingInterceptor, MetricsService, FieldsInterceptor } from '@elrondnetwork/erdnest';
+import { LoggingInterceptor, MetricsService } from '@multiversx/sdk-nestjs-monitoring';
+import { FieldsInterceptor } from '@multiversx/sdk-nestjs-http';
 
 /**
  * Wrapper for Express server

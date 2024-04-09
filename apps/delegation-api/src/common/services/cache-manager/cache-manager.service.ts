@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import { UserContractDeploy } from '../../../models';
 import { AddressActiveContract } from '../../../models/address-active-contract';
 import { ContractFeeChanges } from '../../../models/contract-fee-changes';
-import { NetworkConfig, NetworkStatus } from '@elrondnetwork/erdjs-network-providers';
+import { NetworkConfig, NetworkStatus } from '@multiversx/sdk-network-providers';
 
 const Keys = {
   allContractAddresses: () => 'allContractAddresses',

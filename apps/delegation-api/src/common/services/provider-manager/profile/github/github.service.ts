@@ -1,9 +1,9 @@
-import { BinaryUtils } from "@elrondnetwork/erdnest";
 import { Injectable } from "@nestjs/common";
 import { getHttpAgent, getHttpsAgent } from "../../../../../utils/http";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { HttpService } from "../../../http";
 import { ProfileInfo } from "../common/models/profile.info";
+import { BinaryUtils } from "@multiversx/sdk-nestjs-common";
 
 @Injectable()
 export class GithubService extends HttpService {

@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { decodeBigNumber, decodeBool, decodeUnsignedNumber } from '@elrondnetwork/erdjs/out';
+import { decodeBigNumber, decodeBool, decodeUnsignedNumber } from '@multiversx/sdk-core';
 
 declare global {
   interface Buffer {
@@ -42,4 +42,4 @@ Buffer.prototype.asNumber = function () {
   return decodeUnsignedNumber(this);
 };
 
-export {};
+export { };
