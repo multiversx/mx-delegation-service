@@ -33,6 +33,7 @@
     "@multiversx/sdk-nestjs-monitoring": "^3.4.1",
     "@multiversx/sdk-network-providers": "^2.4.3",
     "@multiversx/sdk-transaction-processor": "^0.1.30",
+    "@multiversx/sdk-wallet": "^4.4.0",
     "@nestjs/common": "^8.4.7",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.4.7",
