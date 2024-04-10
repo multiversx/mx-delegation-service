@@ -39,4 +39,3 @@ class Main {
  */
 new Main();
 
-
