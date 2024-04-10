@@ -21,10 +21,6 @@ export class CacheWarmerScheduler {
   @Cron(CronExpression.EVERY_10_MINUTES)
   async checkoutAssetsRepo() {
     await this.assetsService.checkout();
-  }
-
-  @Cron(CronExpression.EVERY_10_MINUTES)
-  async refreshAllIdentities() {
     await this.identitiesLoaderService.refreshAll();
   }
 }
