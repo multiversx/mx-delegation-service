@@ -1,22 +1,22 @@
+import { MetricsService } from '@multiversx/sdk-nestjs-monitoring';
 import { Injectable } from '@nestjs/common';
 import { register, Histogram, Gauge } from 'prom-client';
-import { MetricsService } from '@elrondnetwork/erdnest';
 
 @Injectable()
 export class ApiMetricsService {
-  
+
   private static apiResponseSizeHistogram: Histogram<string>;
   private static transactionProcessorLastNonceGauge: Gauge<string>;
 
-  constructor (
+  constructor(
     private readonly metricsService: MetricsService,
   ) {
     if (!ApiMetricsService.apiResponseSizeHistogram) {
       ApiMetricsService.apiResponseSizeHistogram = new Histogram({
         name: 'api_response_size',
         help: 'API Response size',
-        labelNames: [ 'endpoint' ],
-        buckets: [ ],
+        labelNames: ['endpoint'],
+        buckets: [],
       });
     }
 
@@ -24,7 +24,7 @@ export class ApiMetricsService {
       ApiMetricsService.transactionProcessorLastNonceGauge = new Gauge({
         name: 'transaction_processor_last_nonce',
         help: 'Transaction Processor Last Processed Nonce',
-        labelNames: [ 'shardId' ],
+        labelNames: ['shardId'],
       });
     }
 

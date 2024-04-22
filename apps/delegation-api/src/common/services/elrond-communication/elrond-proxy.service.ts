@@ -1,7 +1,7 @@
-import { ContractFunction, Address, AddressValue } from '@elrondnetwork/erdjs';
+import { ContractFunction, Address, AddressValue } from '@multiversx/sdk-core';
 import { elrondConfig } from '../../../config';
 import { Inject, Injectable } from '@nestjs/common';
-import { Query } from '@elrondnetwork/erdjs/out/smartcontracts/query';
+import { Query } from '@multiversx/sdk-core';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CacheManagerService } from '../cache-manager/cache-manager.service';

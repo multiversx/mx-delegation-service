@@ -1,10 +1,11 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { DelegationController } from './delegation.controller';
 import { ElrondCommunicationModule } from '../../common/services/elrond-communication/elrond-communication.module';
 import { DelegationService } from './delegation.service';
 import { CacheManagerModule } from '../../common/services/cache-manager/cache-manager.module';
 import { ProvidersModule } from '../providers/providers.module';
 import * as redisStore from 'cache-manager-ioredis';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   controllers: [DelegationController],
@@ -30,4 +31,4 @@ import * as redisStore from 'cache-manager-ioredis';
     DelegationService,
   ],
 })
-export class DelegationModule {}
+export class DelegationModule { }

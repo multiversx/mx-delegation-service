@@ -1,6 +1,7 @@
-import { CacheModule, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { CacheManagerService } from './cache-manager.service';
 import * as redisStore from 'cache-manager-ioredis';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   providers: [
@@ -24,4 +25,4 @@ import * as redisStore from 'cache-manager-ioredis';
     CacheManagerService,
   ],
 })
-export class CacheManagerModule {}
+export class CacheManagerModule { }

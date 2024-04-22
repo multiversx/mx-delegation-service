@@ -9,7 +9,7 @@ export class CachingConfig {
   getMetaData: CacheWithVerify;
 
   getUserUnBondable: number;
-  getUserActiveStake: number
+  getUserActiveStake: number;
   getClaimableRewards: number;
   getUserUnDelegatedList: number;
 
@@ -36,7 +36,7 @@ export class CachingConfig {
   isContractDeployedByAddress: {
     'false': number,
     'true': number
-  }
+  };
 
   userContractDeploys: number;
 
@@ -48,5 +48,5 @@ export class CachingConfig {
 
 class CacheWithVerify {
   standard: number;
-  verified: number
+  verified: number;
 }

@@ -6,7 +6,8 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { NestInterceptor, ValidationPipe } from '@nestjs/common';
-import { LoggingInterceptor, MetricsService, FieldsInterceptor } from '@elrondnetwork/erdnest';
+import { LoggingInterceptor, MetricsService } from '@multiversx/sdk-nestjs-monitoring';
+import { FieldsInterceptor } from '@multiversx/sdk-nestjs-http';
 
 /**
  * Wrapper for Express server
@@ -79,7 +80,7 @@ export class Express {
 
     this.setKeepAlive(app);
 
-    await app.startAllMicroservicesAsync();
+    await app.startAllMicroservices();
   }
 
   private setKeepAlive(app: NestExpressApplication): void {
