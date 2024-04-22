@@ -1,4 +1,4 @@
-import { Account, Address } from '@elrondnetwork/erdjs';
+import { Account, Address } from '@multiversx/sdk-core';
 import BigNumber from 'bignumber.js';
 
 declare global {
@@ -51,4 +51,4 @@ String.prototype.makeId = function (length) {
 String.prototype.hexBigNumberToString = function () {
   return (new BigNumber(this, 16).toString(10)).toString();
 };
-export {};
+export { };

@@ -3,7 +3,7 @@ import { AssetsService } from "../../assets/assets.service";
 import { readdir } from "fs/promises";
 import { CacheManagerService } from "../../cache-manager/cache-manager.service";
 import { cacheConfig } from "../../../../config";
-import { AddressUtils } from "@elrondnetwork/erdnest";
+import { AddressUtils } from "@multiversx/sdk-nestjs-common";
 
 @Injectable()
 export class IdentitiesLoaderService {

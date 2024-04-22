@@ -1,12 +1,12 @@
-import { ContractFunction, Address, AddressValue } from '@elrondnetwork/erdjs';
+import { ContractFunction, Address, AddressValue } from '@multiversx/sdk-core';
 import { elrondConfig } from '../../../config';
 import { Inject, Injectable } from '@nestjs/common';
-import { Query } from '@elrondnetwork/erdjs/out/smartcontracts/query';
+import { Query } from '@multiversx/sdk-core';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
 import { Logger } from 'winston';
 import { CacheManagerService } from '../cache-manager/cache-manager.service';
 import BigNumber from 'bignumber.js';
-import { ContractQueryResponse, NetworkStatus, ProxyNetworkProvider, NetworkConfig } from '@elrondnetwork/erdjs-network-providers';
+import { ContractQueryResponse, NetworkStatus, ProxyNetworkProvider, NetworkConfig } from '@multiversx/sdk-network-providers';
 
 @Injectable()
 export class ElrondProxyService {
@@ -38,7 +38,7 @@ export class ElrondProxyService {
     const result = await this.proxy.queryContract(query);
     this.logger.info('getContractList', {
       path: 'elrond-proxy.service.getContractList',
-      returnCode : result.returnCode,
+      returnCode: result.returnCode,
       returnMessage: result.returnMessage,
     });
 
@@ -61,7 +61,7 @@ export class ElrondProxyService {
     this.logger.info('getContractConfig', {
       path: 'elrond-proxy.service.getContractConfig',
       delegationContract,
-      returnCode : result.returnCode,
+      returnCode: result.returnCode,
       returnMessage: result.returnMessage,
     });
 
@@ -86,7 +86,7 @@ export class ElrondProxyService {
     this.logger.info('getBlsKeysStatus', {
       path: 'elrond-proxy.service.getBlsKeys',
       delegationContract,
-      returnCode : result.returnCode,
+      returnCode: result.returnCode,
       returnMessage: result.returnMessage,
     });
 
@@ -114,7 +114,7 @@ export class ElrondProxyService {
     }
 
     const result = await this.getUserContractData('getUserUnBondable', address, delegationContract);
-    await this.cacheManager.setUserUnBondable(address, delegationContract, networkStatus.EpochNumber,result.toJSON());
+    await this.cacheManager.setUserUnBondable(address, delegationContract, networkStatus.EpochNumber, result.toJSON());
     return result;
   }
 
@@ -143,7 +143,7 @@ export class ElrondProxyService {
       method,
       delegationContract,
       address,
-      returnCode : result.returnCode,
+      returnCode: result.returnCode,
       returnMessage: result.returnMessage,
     });
     return result;
@@ -165,14 +165,14 @@ export class ElrondProxyService {
       path: 'elrond-proxy.service.getGlobalDelegationMethod',
       method,
       delegationContract,
-      returnCode : result.returnCode,
+      returnCode: result.returnCode,
       returnMessage: result.returnMessage,
     });
     await this.cacheManager.setProviderData(method, delegationContract, result.toJSON());
     return result;
   }
 
-  async getContractMetaData (delegationContract: string): Promise<ContractQueryResponse> {
+  async getContractMetaData(delegationContract: string): Promise<ContractQueryResponse> {
     const cachedData = await this.cacheManager.getContractMetadata(delegationContract);
     if (!!cachedData) {
       return ContractQueryResponse.fromHttpResponse(cachedData);
@@ -187,7 +187,7 @@ export class ElrondProxyService {
     this.logger.info('getMetaData', {
       path: 'elrond-proxy.service.getContractMetaData',
       delegationContract,
-      returnCode : result.returnCode,
+      returnCode: result.returnCode,
       returnMessage: result.returnMessage,
     });
     await this.cacheManager.setContractMetadata(delegationContract, false, result.toJSON());
@@ -223,7 +223,7 @@ export class ElrondProxyService {
       path: 'elrond-proxy.service.getUserUnDelegatedList',
       delegationContract,
       address,
-      returnCode : result.returnCode,
+      returnCode: result.returnCode,
       returnMessage: result.returnMessage,
     });
     await this.cacheManager.setUserUndelegatedlist(address, delegationContract, networkStatus.EpochNumber, result.toJSON());

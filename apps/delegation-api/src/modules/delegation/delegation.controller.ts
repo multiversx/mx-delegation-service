@@ -1,8 +1,7 @@
-import { CacheInterceptor, CacheTTL, Controller, Get, Param, Query, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { DelegationService } from './delegation.service';
 import { Delegation } from './dto/delegation.dto';
-import { LongTermCacheInterceptor } from '../../interceptors/long-term-cache.interceptor';
 import { ParseOptionalBoolPipe } from '../../utils/pipes/parse.optional.bool.pipe';
 
 @Controller('accounts')
@@ -10,25 +9,21 @@ import { ParseOptionalBoolPipe } from '../../utils/pipes/parse.optional.bool.pip
 export class DelegationController {
   constructor(
     private delegationService: DelegationService
-  ) {}
+  ) { }
 
   @Get(':address/delegations')
   @ApiOkResponse({
     description: 'All the query data for the specified address and for all active contracts',
     type: [Delegation],
   })
-  @UseInterceptors(CacheInterceptor)
-  @UseInterceptors(LongTermCacheInterceptor)
-  @CacheTTL(12)
   getActiveContractsAndDataForUser(
     @Param('address') address: string,
     @Query('forceRefresh', new ParseOptionalBoolPipe) forceRefresh: boolean | undefined,
-  ) : Promise<Delegation[]> {
+  ): Promise<Delegation[]> {
     return this.delegationService.getAllContractDataForUser(address, forceRefresh);
   }
 
   @Get(':address/delegations/:contract')
-  @UseInterceptors(LongTermCacheInterceptor)
   @ApiOkResponse({
     description: 'All the query data for the specified address',
     type: Delegation,
@@ -36,7 +31,7 @@ export class DelegationController {
   getContractDataForUser(
     @Param('contract') contract: string,
     @Param('address') address: string,
-  ) : Promise<Delegation> {
+  ): Promise<Delegation> {
     return this.delegationService.getDelegationForUser(contract, address);
   }
 

@@ -1,4 +1,4 @@
-import { CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { cacheConfig } from '../../../config';
 import { Provider } from '../../../modules/providers/dto/providers.response.dto';
@@ -6,7 +6,8 @@ import BigNumber from 'bignumber.js';
 import { UserContractDeploy } from '../../../models';
 import { AddressActiveContract } from '../../../models/address-active-contract';
 import { ContractFeeChanges } from '../../../models/contract-fee-changes';
-import { NetworkConfig, NetworkStatus } from '@elrondnetwork/erdjs-network-providers';
+import { NetworkConfig, NetworkStatus } from '@multiversx/sdk-network-providers';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 const Keys = {
   allContractAddresses: () => 'allContractAddresses',
