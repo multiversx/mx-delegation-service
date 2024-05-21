@@ -6,6 +6,7 @@ import { ElrondCommunicationModule } from '../../common/services/elrond-communic
 import { ProviderManagerModule } from '../../common/services/provider-manager/provider-manager.module';
 import { DelegationAprService } from '../delegation/delegation-apr.service';
 import { ServicesModule } from '../../common/services';
+import { NetworkStakeLoaderModule } from '../../common/services/elrond-communication/loaders';
 
 @Module({
   controllers: [ProvidersController],
@@ -18,9 +19,10 @@ import { ServicesModule } from '../../common/services';
     ElrondCommunicationModule,
     ProviderManagerModule,
     ServicesModule,
+    NetworkStakeLoaderModule,
   ],
   exports: [
     ProvidersService,
   ],
 })
-export class ProvidersModule {}
+export class ProvidersModule { }

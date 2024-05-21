@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import denominate from './formatters';
 import { ElrondProxyService } from '../../common/services/elrond-communication/elrond-proxy.service';
-import { ElrondApiService } from '../../common/services/elrond-communication/elrond-api.service';
 import { elrondConfig } from '../../config';
 import { CacheManagerService } from '../../common/services/cache-manager/cache-manager.service';
-import { NetworkStake } from '@multiversx/sdk-network-providers/out';
+import { MultiversXApiNetworkStake } from '../../common/services/elrond-communication/models/network-stake.dto';
+import { NetworkStakeLoaderService } from '../../common/services/elrond-communication/loaders';
 
 const denominateValue = (value: string) => {
   const denominatedValueString = denominate({
@@ -20,9 +20,9 @@ const denominateValue = (value: string) => {
 export class DelegationAprService {
 
   constructor(
-    private elrondApiService: ElrondApiService,
     private elrondProxyService: ElrondProxyService,
-    private cacheManager: CacheManagerService
+    private cacheManager: CacheManagerService,
+    private readonly networkStakeLoaderService: NetworkStakeLoaderService,
   ) {
   }
 
@@ -48,7 +48,7 @@ export class DelegationAprService {
         this.elrondProxyService.getGlobalDelegationMethod('getTotalActiveStake', delegationContract),
         this.elrondProxyService.getBlsKeys(delegationContract),
         this.elrondProxyService.getNetworkStatus(),
-        this.elrondApiService.getNetworkStake(),
+        this.networkStakeLoaderService.load(),
         this.elrondProxyService.getNetworkConfig(),
         this.elrondProxyService.getAccountBalance(elrondConfig.auctionContract),
       ]
@@ -73,7 +73,7 @@ export class DelegationAprService {
       (1 - protocolSustainabilityRewards) * rewardsPerEpoch;
     const topUpRewardsLimit =
       0.5 * rewardsPerEpochWithoutProtocolSustainability;
-    const networkBaseStake = networkStake.TotalValidators * stakePerNode;
+    const networkBaseStake = networkStake.totalValidators * stakePerNode;
     const networkTotalStake = parseInt(denominateValue(stakedBalance.toFixed()));
 
     const networkTopUpStake =
@@ -88,10 +88,10 @@ export class DelegationAprService {
         (2 * 2000000)
       );
     const baseReward = rewardsPerEpochWithoutProtocolSustainability - topUpReward;
-    const nodeStatuses = ['staked', 'jailed', 'queued', 'auction', 'qualified'];
+    const nodeStatuses = ['staked', 'jailed', 'queued'];
     const allNodes = blsKeys.filter(key => nodeStatuses.includes(key.asString())).length;
 
-    const activeNodeStatuses = ['staked', 'auction', 'qualified'];
+    const activeNodeStatuses = ['staked'];
     const allActiveNodes = blsKeys.filter(key => activeNodeStatuses.includes(key.asString())).length;
     if (allActiveNodes <= 0) {
       return 0;
@@ -114,11 +114,11 @@ export class DelegationAprService {
     return apr;
   }
 
-  private loadInactiveValidatorsStake(networkStake: NetworkStake, stakePerNode: number): number {
-    if (networkStake['InactiveValidators'] != null) {
-      return networkStake['InactiveValidators'] * stakePerNode;
+  private loadInactiveValidatorsStake(networkStake: MultiversXApiNetworkStake, stakePerNode: number): number {
+    if (networkStake.inactiveValidators != null) {
+      return networkStake.inactiveValidators * stakePerNode;
     }
 
-    return networkStake.QueueSize * stakePerNode;
+    return networkStake.queueSize * stakePerNode;
   }
 }
