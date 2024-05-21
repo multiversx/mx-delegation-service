@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import denominate from './formatters';
 import { ElrondProxyService } from '../../common/services/elrond-communication/elrond-proxy.service';
 import { elrondConfig } from '../../config';
@@ -19,6 +19,7 @@ const denominateValue = (value: string) => {
 
 @Injectable()
 export class DelegationAprService {
+  private readonly logger = new Logger(DelegationAprService.name);
 
   constructor(
     private elrondProxyService: ElrondProxyService,
@@ -57,6 +58,15 @@ export class DelegationAprService {
         this.elrondApiService.getValidatorUnqualifiedNodes(delegationContract),
       ]
     );
+    this.logger.log(`getProviderAPR: ${delegationContract} ${serviceFee}`, {
+      activeStakeResponse,
+      blsKeysResponse,
+      networkStats,
+      networkStake,
+      networkConfig,
+      stakedBalance,
+      unqualifiedNodes,
+    });
 
     const blsKeys: Buffer[] = blsKeysResponse.getReturnDataParts();
     const activeStake: Buffer = activeStakeResponse.getReturnDataParts()[0];
