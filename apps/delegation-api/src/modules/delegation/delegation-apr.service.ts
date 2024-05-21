@@ -59,12 +59,10 @@ export class DelegationAprService {
       ]
     );
     this.logger.log(`getProviderAPR: ${delegationContract} ${serviceFee}`, {
-      activeStakeResponse,
-      blsKeysResponse,
       networkStats,
       networkStake,
       networkConfig,
-      stakedBalance,
+      stakedBalance: stakedBalance.toFixed(),
       unqualifiedNodes,
     });
 
