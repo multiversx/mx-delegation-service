@@ -5,6 +5,7 @@ import { elrondConfig } from '../../config';
 import { CacheManagerService } from '../../common/services/cache-manager/cache-manager.service';
 import { MultiversXApiNetworkStake } from '../../common/services/elrond-communication/models/network-stake.dto';
 import { NetworkStakeLoaderService } from '../../common/services/elrond-communication/loaders';
+import { ElrondApiService } from '../../common/services/elrond-communication/elrond-api.service';
 
 const denominateValue = (value: string) => {
   const denominatedValueString = denominate({
@@ -23,6 +24,7 @@ export class DelegationAprService {
     private elrondProxyService: ElrondProxyService,
     private cacheManager: CacheManagerService,
     private readonly networkStakeLoaderService: NetworkStakeLoaderService,
+    private readonly elrondApiService: ElrondApiService,
   ) {
   }
 
@@ -43,6 +45,7 @@ export class DelegationAprService {
       networkStake,
       networkConfig,
       stakedBalance,
+      unqualifiedNodes,
     ] = await Promise.all(
       [
         this.elrondProxyService.getGlobalDelegationMethod('getTotalActiveStake', delegationContract),
@@ -51,6 +54,7 @@ export class DelegationAprService {
         this.networkStakeLoaderService.load(),
         this.elrondProxyService.getNetworkConfig(),
         this.elrondProxyService.getAccountBalance(elrondConfig.auctionContract),
+        this.elrondApiService.getValidatorUnqualifiedNodes(delegationContract),
       ]
     );
 
@@ -92,7 +96,8 @@ export class DelegationAprService {
     const allNodes = blsKeys.filter(key => nodeStatuses.includes(key.asString())).length;
 
     const activeNodeStatuses = ['staked'];
-    const allActiveNodes = blsKeys.filter(key => activeNodeStatuses.includes(key.asString())).length;
+    const allActiveNodes = blsKeys.filter(key => activeNodeStatuses.includes(key.asString())).length
+      - unqualifiedNodes.length;
     if (allActiveNodes <= 0) {
       return 0;
     }
