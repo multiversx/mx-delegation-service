@@ -48,7 +48,11 @@ export class ElrondApiService {
       return [];
     }
 
-    const providerNodes = auctionList.find(auction => auction.owner === provider).nodes;
+    const providerNodes = auctionList.find(auction => auction.owner === provider)?.nodes;
+    if (!providerNodes) {
+      return [];
+    }
+
     const unqualifiedNodes = providerNodes.filter(node => !node.qualified);
 
     return unqualifiedNodes;
