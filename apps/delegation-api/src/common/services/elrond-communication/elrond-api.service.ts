@@ -53,7 +53,8 @@ export class ElrondApiService {
       return [];
     }
 
-    const unqualifiedNodes = providerNodes.filter(node => !node.qualified);
+    // const unqualifiedNodes = providerNodes.filter(node => !node.qualified);
+    const unqualifiedNodes = providerNodes;
 
     return unqualifiedNodes;
   }
