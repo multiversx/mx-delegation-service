@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import denominate from './formatters';
 import { ElrondProxyService } from '../../common/services/elrond-communication/elrond-proxy.service';
-import { ElrondApiService } from '../../common/services/elrond-communication/elrond-api.service';
 import { elrondConfig } from '../../config';
 import { CacheManagerService } from '../../common/services/cache-manager/cache-manager.service';
+import { MultiversXApiNetworkStake } from '../../common/services/elrond-communication/models/network-stake.dto';
+import { NetworkStakeLoaderService } from '../../common/services/elrond-communication/loaders';
+import { ElrondApiService } from '../../common/services/elrond-communication/elrond-api.service';
 
 const denominateValue = (value: string) => {
   const denominatedValueString = denominate({
@@ -17,11 +19,13 @@ const denominateValue = (value: string) => {
 
 @Injectable()
 export class DelegationAprService {
+  private readonly logger = new Logger(DelegationAprService.name);
 
   constructor(
-    private elrondApiService: ElrondApiService,
     private elrondProxyService: ElrondProxyService,
-    private cacheManager: CacheManagerService
+    private cacheManager: CacheManagerService,
+    private readonly networkStakeLoaderService: NetworkStakeLoaderService,
+    private readonly elrondApiService: ElrondApiService,
   ) {
   }
 
@@ -42,16 +46,25 @@ export class DelegationAprService {
       networkStake,
       networkConfig,
       stakedBalance,
-      ] = await Promise.all(
+      unqualifiedNodes,
+    ] = await Promise.all(
       [
         this.elrondProxyService.getGlobalDelegationMethod('getTotalActiveStake', delegationContract),
         this.elrondProxyService.getBlsKeys(delegationContract),
         this.elrondProxyService.getNetworkStatus(),
-        this.elrondApiService.getNetworkStake(),
+        this.networkStakeLoaderService.load(),
         this.elrondProxyService.getNetworkConfig(),
         this.elrondProxyService.getAccountBalance(elrondConfig.auctionContract),
+        this.elrondApiService.getValidatorUnqualifiedNodes(delegationContract),
       ]
     );
+    this.logger.log(`getProviderAPR: ${delegationContract} ${serviceFee}`, {
+      networkStats,
+      networkStake,
+      networkConfig,
+      stakedBalance: stakedBalance.toFixed(),
+      unqualifiedNodes,
+    });
 
     const blsKeys: Buffer[] = blsKeysResponse.getReturnDataParts();
     const activeStake: Buffer = activeStakeResponse.getReturnDataParts()[0];
@@ -72,13 +85,13 @@ export class DelegationAprService {
       (1 - protocolSustainabilityRewards) * rewardsPerEpoch;
     const topUpRewardsLimit =
       0.5 * rewardsPerEpochWithoutProtocolSustainability;
-    const networkBaseStake = networkStake.TotalValidators * stakePerNode;
+    const networkBaseStake = networkStake.totalValidators * stakePerNode;
     const networkTotalStake = parseInt(denominateValue(stakedBalance.toFixed()));
 
     const networkTopUpStake =
       networkTotalStake -
       networkBaseStake -
-      networkStake.QueueSize * stakePerNode;
+      this.loadInactiveValidatorsStake(networkStake, stakePerNode);
 
     const topUpReward =
       ((2 * topUpRewardsLimit) / Math.PI) *
@@ -87,10 +100,12 @@ export class DelegationAprService {
         (2 * 2000000)
       );
     const baseReward = rewardsPerEpochWithoutProtocolSustainability - topUpReward;
-    const allNodes = blsKeys.filter(key => key.asString() === 'staked' || key.asString() === 'jailed' || key.asString() === 'queued')
-      .length;
+    const nodeStatuses = ['staked', 'jailed', 'queued'];
+    const allNodes = blsKeys.filter(key => nodeStatuses.includes(key.asString())).length;
 
-    const allActiveNodes = blsKeys.filter(key => key.asString() === 'staked').length;
+    const activeNodeStatuses = ['staked'];
+    const allActiveNodes = blsKeys.filter(key => activeNodeStatuses.includes(key.asString())).length
+      - unqualifiedNodes.length;
     if (allActiveNodes <= 0) {
       return 0;
     }
@@ -110,5 +125,13 @@ export class DelegationAprService {
     const apr = (anualPercentageRate * (1 - serviceFee / 100 / 100) * 100);
     await this.cacheManager.setProviderAPR(delegationContract, serviceFee, apr);
     return apr;
+  }
+
+  private loadInactiveValidatorsStake(networkStake: MultiversXApiNetworkStake, stakePerNode: number): number {
+    if (networkStake.inactiveValidators != null) {
+      return networkStake.inactiveValidators * stakePerNode;
+    }
+
+    return networkStake.queueSize * stakePerNode;
   }
 }

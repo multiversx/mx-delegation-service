@@ -1,37 +1,81 @@
 import { elrondConfig } from '../../../config';
-import { Injectable } from '@nestjs/common';
-import { CacheManagerService } from '../cache-manager/cache-manager.service';
-import BigNumber from 'bignumber.js';
-import { ApiNetworkProvider, NetworkStake } from '@multiversx/sdk-network-providers';
+import { Injectable, Logger } from '@nestjs/common';
+import { HttpService } from '../http';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { getHttpAgent, getHttpsAgent } from '../../../utils/http';
+import { MultiversXApiNetworkStake } from './models/network-stake.dto';
+import { MultiversXApiValidatorAuctionNode, MultiversXApiValidatorAuctionResponse } from './models/validator-auction.dto';
 
 @Injectable()
 export class ElrondApiService {
-  private proxy: ApiNetworkProvider;
-  constructor(private cacheManager: CacheManagerService) {
-    this.proxy = new ApiNetworkProvider(
-      elrondConfig.elrondApi,
-      {
-        timeout: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
-      }
-    );
-  }
+  private readonly httpAgent = getHttpAgent(parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM));
+  private readonly httspAgent = getHttpsAgent(parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM));
+  private readonly logger = new Logger(ElrondApiService.name);
+  constructor(
+    private readonly httpService: HttpService
+  ) { }
 
-  async getNetworkStake(): Promise<NetworkStake> {
-    const cachedValue = await this.cacheManager.getNetworkStake();
-    if (!!cachedValue) {
-      const networkStake = new NetworkStake();
-      networkStake.TotalValidators = Number(cachedValue.TotalValidators);
-      networkStake.ActiveValidators = Number(cachedValue.ActiveValidators);
-      networkStake.QueueSize = Number(cachedValue.QueueSize);
-      networkStake.TotalStaked = new BigNumber(cachedValue.TotalStaked);
-      return networkStake;
+  private getConfig = (): AxiosRequestConfig => {
+    return {
+      baseURL: elrondConfig.elrondApi,
+      timeout: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
+      httpAgent: this.httpAgent,
+      httpsAgent: this.httspAgent,
+    };
+  };
+
+  async getNetworkStake(): Promise<MultiversXApiNetworkStake | undefined> {
+    const response = await this.get<MultiversXApiNetworkStake>(`stake`);
+
+    const data = response.data;
+    if (data == null) {
+      return;
     }
 
-    const result = await this.proxy.getNetworkStakeStatistics();
-    await this.cacheManager.setNetworkStake({
-      ...result,
-      TotalStaked: result.TotalStaked.toString(),
-    });
-    return result;
+    return data;
   }
+
+  async getValidatorUnqualifiedNodes(provider: string): Promise<MultiversXApiValidatorAuctionNode[]> {
+    const response = await this.get<MultiversXApiValidatorAuctionResponse>(`validator/auction`);
+
+    const data = response.data;
+    if (data == null) {
+      return [];
+    }
+
+    const auctionList = data.data.auctionList;
+    if (auctionList == null || auctionList.length === 0) {
+      return [];
+    }
+
+    const providerNodes = auctionList.find(auction => auction.owner === provider)?.nodes;
+    if (!providerNodes) {
+      return [];
+    }
+
+    const unqualifiedNodes = providerNodes.filter(node => !node.qualified);
+
+    return unqualifiedNodes;
+  }
+
+  private async get<T = never, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R | undefined> {
+    try {
+      return await this.httpService.get(
+        url,
+        {
+          ...this.getConfig(),
+          ...config,
+        }
+      );
+    } catch (error) {
+      this.logger.error('Error fetching data from Elrond API', {
+        url,
+        path: 'elrond-api.service.get',
+        error,
+      });
+      return;
+    }
+  }
+
+
 }
