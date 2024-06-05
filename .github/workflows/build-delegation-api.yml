@@ -24,7 +24,6 @@ jobs:
       - name: Install plugins module
         run: yarn init-plugins
       - name: Build
-        run: |
-          yarn build
+        run: yarn build
       - name: Lint
         run: yarn lint
