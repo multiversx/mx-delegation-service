@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -26,11 +26,5 @@ jobs:
       - name: Build
         run: |
           yarn build
-
-          cp package.json dist/apps/delegation-api
-
-          cp yarn.lock dist/apps/delegation-api
-
-          cp apps/delegation-api/src/config/*  dist/apps/delegation-api/config
       - name: Lint
         run: yarn lint
