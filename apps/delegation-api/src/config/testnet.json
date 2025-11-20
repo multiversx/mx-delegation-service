@@ -5,6 +5,7 @@
     "gateway": "https://testnet-gateway.elrond.com",
     "explorer": "https://testnet-explorer.elrond.com",
     "chainID": "T",
-    "transactionProcessorMaxLookBehind": 10
+    "transactionProcessorMaxLookBehind": 10,
+    "protocolSustainabilityRewards": 0.1
   }
 }

@@ -36,6 +36,7 @@ const Keys = {
   isContractDeployedByAddress: (contract: string, address: string) => `isContractDeployedByAddress.${contract}.${address}`,
   addressContractDeploys: () => 'addressContractDeploys',
   addressActiveContracts: (address: string) => `addressActiveContracts.${address}`,
+  stakingV5Settings: () => 'stakingV5Settings',
 };
 
 @Injectable()
@@ -265,6 +266,14 @@ export class CacheManagerService {
 
   getNetworkStatus(): Promise<NetworkStatus> {
     return this.cacheManager.get<NetworkStatus>(Keys.networkStatus());
+  }
+
+  getStakingV5Settings(): Promise<boolean> {
+    return this.cacheManager.get(Keys.stakingV5Settings());
+  }
+
+  setStakingV5Settings(settings: any): Promise<void> {
+    return this.set(Keys.stakingV5Settings(), settings, cacheConfig.stakingV5Settings)
   }
 
   setAccountBalance(account: string, acountBalance: BigNumber): Promise<void> {
