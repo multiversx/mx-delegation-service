@@ -82,6 +82,11 @@ export class DelegationAprService {
       epochsSinceGenesis = stakingV5Settings.activationEpoch - networkStats.EpochNumber;
       yearSettings = elrondConfig.stakingV5YearSettings;
     }
+    this.logger.log(`getProviderAPR: ${delegationContract} ${serviceFee}. Staking v5: ${stakingV5Settings.enabled}. 
+    Protocol sustain rewards: ${protocolSustainabilityRewards}
+    Genesis token supply: ${genesisTokenSupply}
+    Epochs since genesis: ${epochsSinceGenesis}
+    Years settings: ${yearSettings}`, {})
 
     if (!networkConfig.RoundsPerEpoch) {
       networkConfig.RoundsPerEpoch = networkStats.RoundsPerEpoch;
