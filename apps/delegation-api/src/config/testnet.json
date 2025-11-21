@@ -6,6 +6,6 @@
     "explorer": "https://testnet-explorer.elrond.com",
     "chainID": "T",
     "transactionProcessorMaxLookBehind": 10,
-    "protocolSustainabilityRewards": 0.1
+    "stakingV5GenesisTokenSupply": 24433152
   }
 }

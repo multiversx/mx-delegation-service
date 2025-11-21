@@ -20,7 +20,6 @@
       { "year": 1, "maximumInflation": 0.08757 }
     ],
     "genesisTokenSupply": 20000000,
-    "stakingV5TokenSupply": 21242828,
     "decimals": 2,
     "denomination": 18,
     "chainID": "T",

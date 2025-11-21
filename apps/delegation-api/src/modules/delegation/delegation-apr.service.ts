@@ -78,7 +78,7 @@ export class DelegationAprService {
     let yearSettings = elrondConfig.yearSettings;
     if (stakingV5Settings.enabled) {
       protocolSustainabilityRewards = elrondConfig.stakingV5ProtocolSustainabilityRewards;
-      genesisTokenSupply = elrondConfig.stakingV5TokenSupply;
+      genesisTokenSupply = elrondConfig.stakingV5GenesisTokenSupply;
       epochsSinceGenesis = networkStats.EpochNumber - stakingV5Settings.activationEpoch;
       yearSettings = elrondConfig.stakingV5YearSettings;
     }
