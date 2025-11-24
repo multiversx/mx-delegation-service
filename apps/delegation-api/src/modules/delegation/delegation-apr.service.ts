@@ -39,6 +39,8 @@ export class DelegationAprService {
       return cachedAPR;
     }
 
+    const stakingV5Settings = await this.getStakingV5Settings();
+
     const [
       activeStakeResponse,
       blsKeysResponse,
@@ -70,7 +72,25 @@ export class DelegationAprService {
     const activeStake: Buffer = activeStakeResponse.getReturnDataParts()[0];
     const feesInEpoch = elrondConfig.feesInEpoch;
     const stakePerNode = elrondConfig.stakePerNode;
-    const protocolSustainabilityRewards = elrondConfig.protocolSustainabilityRewards;
+    let protocolSustainabilityRewards = elrondConfig.protocolSustainabilityRewards;
+    let genesisTokenSupply = elrondConfig.genesisTokenSupply;
+    let epochsSinceGenesis = networkStats.EpochNumber;
+    let yearSettings = elrondConfig.yearSettings;
+    if (stakingV5Settings.enabled) {
+      protocolSustainabilityRewards = elrondConfig.stakingV5ProtocolSustainabilityRewards;
+      genesisTokenSupply = elrondConfig.stakingV5GenesisTokenSupply;
+      epochsSinceGenesis = networkStats.EpochNumber - stakingV5Settings.activationEpoch;
+      if (epochsSinceGenesis < 0) {
+        epochsSinceGenesis = 0;
+      }
+      yearSettings = elrondConfig.stakingV5YearSettings;
+    }
+    this.logger.log(`getProviderAPR: ${delegationContract} ${serviceFee}. Staking v5: ${stakingV5Settings.enabled}. 
+    Protocol sustain rewards: ${protocolSustainabilityRewards}
+    Genesis token supply: ${genesisTokenSupply}
+    Epochs since genesis: ${epochsSinceGenesis}
+    Years settings: ${yearSettings}`, {})
+
     if (!networkConfig.RoundsPerEpoch) {
       networkConfig.RoundsPerEpoch = networkStats.RoundsPerEpoch;
     }
@@ -79,8 +99,8 @@ export class DelegationAprService {
     const epochsInYear = secondsInYear / epochDuration;
 
     const inflationRate =
-      elrondConfig.yearSettings.find(x => x.year === Math.floor(networkStats.EpochNumber / epochsInYear) + 1)?.maximumInflation || 0;
-    const rewardsPerEpoch = Math.max((inflationRate * elrondConfig.genesisTokenSupply) / epochsInYear, feesInEpoch);
+      yearSettings.find(x => x.year === Math.floor(epochsSinceGenesis / epochsInYear) + 1)?.maximumInflation || 0;
+    const rewardsPerEpoch = Math.max((inflationRate * genesisTokenSupply) / epochsInYear, feesInEpoch);
     const rewardsPerEpochWithoutProtocolSustainability =
       (1 - protocolSustainabilityRewards) * rewardsPerEpoch;
     const topUpRewardsLimit =
@@ -133,5 +153,17 @@ export class DelegationAprService {
     }
 
     return networkStake.queueSize * stakePerNode;
+  }
+
+  private async getStakingV5Settings(): Promise<any> {
+    const value = await this.cacheManager.getStakingV5Settings();
+    if (value !== undefined && value !== null) {
+      return value;
+    }
+
+    const computedValue = await this.elrondApiService.getStakingV5Settings();
+    await this.cacheManager.setStakingV5Settings(computedValue);
+
+    return computedValue;
   }
 }

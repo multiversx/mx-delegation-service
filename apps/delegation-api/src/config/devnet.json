@@ -1,6 +1,7 @@
 {
   "elrond": {
     "chainID": "D",
-    "transactionProcessorMaxLookBehind": 1000
+    "transactionProcessorMaxLookBehind": 1000,
+    "stakingV5GenesisTokenSupply": 21242828
   }
 }

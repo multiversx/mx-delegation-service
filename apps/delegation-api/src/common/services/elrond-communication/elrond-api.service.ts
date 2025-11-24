@@ -5,6 +5,8 @@ import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getHttpAgent, getHttpsAgent } from '../../../utils/http';
 import { MultiversXApiNetworkStake } from './models/network-stake.dto';
 import { MultiversXApiValidatorAuctionNode, MultiversXApiValidatorAuctionResponse } from './models/validator-auction.dto';
+import { MultiversXApiAbout } from './models/about-dto';
+import { MultiversXApiStats } from './models/stats-dto';
 
 @Injectable()
 export class ElrondApiService {
@@ -33,6 +35,25 @@ export class ElrondApiService {
     }
 
     return data;
+  }
+
+  async getStakingV5Settings(): Promise<any | undefined> {
+    const aboutResponse = await this.get<MultiversXApiAbout>(`about`);
+    const statsResponse = await this.get<MultiversXApiStats>(`stats`);
+
+    const activationEpoch = aboutResponse.data.features.stakingV5ActivationEpoch;
+    const currentEpoch = statsResponse.data.epoch;
+    if (!activationEpoch) {
+      return false;
+    }
+    if (!currentEpoch) {
+      return false;
+    }
+
+    return {
+      enabled: currentEpoch >= activationEpoch,
+      activationEpoch: activationEpoch,
+    };
   }
 
   async getValidatorUnqualifiedNodes(provider: string): Promise<MultiversXApiValidatorAuctionNode[]> {

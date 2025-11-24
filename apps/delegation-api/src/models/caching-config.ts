@@ -38,6 +38,8 @@ export class CachingConfig {
     'true': number
   };
 
+  stakingV5Settings: number;
+
   userContractDeploys: number;
 
   //LongTerm Cache
