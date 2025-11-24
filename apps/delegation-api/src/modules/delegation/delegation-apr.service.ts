@@ -80,6 +80,9 @@ export class DelegationAprService {
       protocolSustainabilityRewards = elrondConfig.stakingV5ProtocolSustainabilityRewards;
       genesisTokenSupply = elrondConfig.stakingV5GenesisTokenSupply;
       epochsSinceGenesis = networkStats.EpochNumber - stakingV5Settings.activationEpoch;
+      if (epochsSinceGenesis < 0) {
+        epochsSinceGenesis = 0;
+      }
       yearSettings = elrondConfig.stakingV5YearSettings;
     }
     this.logger.log(`getProviderAPR: ${delegationContract} ${serviceFee}. Staking v5: ${stakingV5Settings.enabled}. 
