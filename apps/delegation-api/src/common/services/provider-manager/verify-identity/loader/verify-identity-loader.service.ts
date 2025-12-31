@@ -27,9 +27,12 @@ export class VerifyIdentityLoaderService {
     return verified;
   }
 
-  getRaw(identity: string): boolean {
+  async getRaw(identity: string): Promise<boolean> {
     try {
-      const info = this.assetsService.getIdentityInfo(identity);
+      const info = await this.assetsService.getIdentityInfo(identity);
+      if (info == null) {
+        return false;
+      }
 
       const keys = info.owners;
 

@@ -1,6 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { AssetsService } from "../../assets/assets.service";
-import { readdir } from "fs/promises";
 import { CacheManagerService } from "../../cache-manager/cache-manager.service";
 import { cacheConfig } from "../../../../config";
 import { AddressUtils } from "@multiversx/sdk-nestjs-common";
@@ -16,11 +15,15 @@ export class IdentitiesLoaderService {
   }
 
   async refreshAll(): Promise<void> {
-    const distinctIdentities = await this.getDistictIdentities();
+    const distinctIdentities = await this.assetsService.getDistinctIdentities();
 
     for (const identity of distinctIdentities) {
       this.logger.log(`Refreshing identity ${identity}`);
-      const identityInfo = this.assetsService.getIdentityInfo(identity);
+      const identityInfo = await this.assetsService.getIdentityInfo(identity);
+      if (identityInfo == null) {
+        continue;
+      }
+
       this.logger.log(`Identity info ${identity}`, {
         identityInfo,
       });
@@ -44,16 +47,6 @@ export class IdentitiesLoaderService {
 
   async loadByOwner(owner: string): Promise<string | null> {
     return await this.cacheManagerService.get<string>(this.getCacheKey(owner));
-  }
-
-  private async getDistictIdentities(): Promise<string[]> {
-    const dirContents = await readdir(this.assetsService.getIdentityAssetsPath(), { withFileTypes: true });
-
-    const identities = dirContents
-      .filter(dirent => dirent.isDirectory())
-      .map(dirent => dirent.name);
-
-    return identities;
   }
 
   private getCacheKey(owner: string): string {
