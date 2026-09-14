@@ -1,44 +1,40 @@
 import { Injectable } from "@nestjs/common";
-import fs from "fs";
 import path from "path";
-import simpleGit, { SimpleGit, SimpleGitOptions } from "simple-git";
 import { IdentityInfo } from "./models/identity.info";
+import { GithubService } from "../provider-manager/profile/github/github.service";
+import { HttpService } from "../http";
+import { AssetsModuleOptions } from "./assets-module.options";
 
 @Injectable()
 export class AssetsService {
-  private LOCAL_GIT_PATH = 'dist/repos/mx-assets';
+  constructor(
+    private readonly githubService: GithubService,
+    private readonly httpService: HttpService,
+    private readonly options: AssetsModuleOptions,
+  ) { }
 
+  async getDistinctIdentities(): Promise<string[]> {
+    const dirContents = await this.githubService.getRepoFolderContent(this.options.organization, this.options.repository, this.getRelativePath('identities'));
+    if (dirContents == null) {
+      return [];
+    }
 
-  async checkout(): Promise<void> {
-    const options: Partial<SimpleGitOptions> = {
-      baseDir: this.LOCAL_GIT_PATH,
-      binary: 'git',
-      maxConcurrentProcesses: 6,
-    };
-    const git: SimpleGit = simpleGit(options);
-
-    await git.checkout('master');
-
-    await git.pull('master');
+    return dirContents.map(dirent => dirent.name);
   }
 
-  getIdentityInfo(identity: string): IdentityInfo | null {
-    const filePath = this.getIdentityInfoJsonPath(identity);
-    if (!fs.existsSync(filePath)) {
+  async getIdentityInfo(identity: string): Promise<IdentityInfo | null> {
+    const url = this.getIdentityInfoJsonContentUrl(identity);
+    const response = await this.httpService.get<IdentityInfo>(url);
+    if (response.data == null) {
       return null;
     }
 
-    const info: IdentityInfo = JSON.parse(fs.readFileSync(filePath).toString());
-
-    return info;
+    return response.data;
   }
 
-  getIdentityAssetsPath(): string {
-    return path.join(process.cwd(), this.LOCAL_GIT_PATH, this.getRelativePath('identities'));
-  }
-
-  private getIdentityInfoJsonPath(identity: string): string {
-    return path.join(this.getIdentityAssetsPath(), identity, 'info.json');
+  private getIdentityInfoJsonContentUrl(identity: string): string {
+    const path = this.getRelativePath('identities') + '/' + identity;
+    return `${this.options.rawUrl}/${path}/info.json`;
   }
 
   private getRelativePath(name: string): string {

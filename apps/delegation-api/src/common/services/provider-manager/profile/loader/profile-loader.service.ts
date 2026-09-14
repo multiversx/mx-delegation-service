@@ -40,9 +40,9 @@ export class ProfileLoaderService {
     return githubIdentity;
   }
 
-  private getFromGithub(identity: string): ProfileInfo | undefined {
+  private async getFromGithub(identity: string): Promise<ProfileInfo | undefined> {
     try {
-      const identityInfo = this.assetsService.getIdentityInfo(identity);
+      const identityInfo = await this.assetsService.getIdentityInfo(identity);
       if (identityInfo == null || identityInfo.name == null) {
         this.logger.warn(`Identity ${identity} not found in Github`, {
           identity,

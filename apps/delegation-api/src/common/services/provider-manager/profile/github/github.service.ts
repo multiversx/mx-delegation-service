@@ -1,26 +1,25 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { getHttpAgent, getHttpsAgent } from "../../../../../utils/http";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { HttpService } from "../../../http";
 import { ProfileInfo } from "../common/models/profile.info";
-import { BinaryUtils } from "@multiversx/sdk-nestjs-common";
+import { GithubFolderContent } from "./models/github-folder-content";
+import { GithubModuleOptions } from "./github-module.options";
 
 @Injectable()
-export class GithubService extends HttpService {
+export class GithubService {
+  private readonly logger: Logger = new Logger(GithubService.name);
   private readonly httpAgent = getHttpAgent(parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM));
   private readonly httspAgent = getHttpsAgent(parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM));
 
-  private readonly url: string = 'https://api.github.com';
-
   constructor(
-    private readonly httpService: HttpService
-  ) {
-    super();
-  }
+    private readonly httpService: HttpService,
+    private readonly options: GithubModuleOptions,
+  ) { }
 
   getConfig = (): AxiosRequestConfig => {
     return {
-      baseURL: this.url,
+      baseURL: this.options.apiUrl,
       timeout: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       httpAgent: this.httpAgent,
       httpsAgent: this.httspAgent,
@@ -47,15 +46,26 @@ export class GithubService extends HttpService {
     };
   }
 
-  async getRepoContent(username: string, repository: string, path: string): Promise<string | undefined> {
-    const response = await this.get<{ content: string }>(`repos/${username}/${repository}/contents/${path}`);
+  async getRepoFolderContent(username: string, repository: string, folder: string): Promise<GithubFolderContent[] | undefined> {
+    try {
+      const response = await this.get<GithubFolderContent[]>(`repos/${username}/${repository}/contents/${folder}`);
 
-    const content = response.data;
-    if (!content) {
-      return undefined;
+      const content = response.data;
+      if (content == null) {
+        return [];
+      }
+
+      return content;
+    } catch (error) {
+      this.logger.error(`[${GithubService.name}] Unexpected error while getting repo folder content`, {
+        username,
+        repository,
+        folder,
+        error,
+      });
+
+      return;
     }
-
-    return BinaryUtils.base64Decode(content.content);
   }
 
   get<T = never, R = AxiosResponse<T>>(url: string, config?: AxiosRequestConfig): Promise<R> {
@@ -69,10 +79,7 @@ export class GithubService extends HttpService {
   }
 
   protected getHeaders(): Record<string, string> {
-    const token = process.env.GITHUB_TOKEN;
-    if (!token) {
-      return {};
-    }
+    const token = this.options.token;
 
     return {
       Authorization: `token ${token}`,
