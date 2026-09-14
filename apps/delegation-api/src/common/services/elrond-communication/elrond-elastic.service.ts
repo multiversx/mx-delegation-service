@@ -25,7 +25,7 @@ export class ElrondElasticService {
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger
   ) {
     this.transactionsClient = new Client({
-      node: elrondConfig.elastic + '/transactions',
+      node: elrondConfig.elastic + '/operations',
       requestTimeout: parseInt(process.env.KEEPALIVE_TIMEOUT_DOWNSTREAM),
       agent: {
         keepAlive: true,
@@ -89,8 +89,19 @@ export class ElrondElasticService {
   async getTransactionsByHashes(txHashes: string[]): Promise<ElasticTransaction[]> {
     const body = {
       query: {
-        ids: {
-          values: txHashes,
+        bool: {
+          must: [
+            {
+              ids: {
+                values: txHashes,
+              },
+            },
+            {
+              term: {
+                type: 'normal',
+              },
+            },
+          ],
         },
       },
     };
