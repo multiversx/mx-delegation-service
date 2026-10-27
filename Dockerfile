@@ -1,26 +1,37 @@
 FROM node:24.22.1-alpine AS build
-RUN apk add --no-cache git
-WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
-COPY . .
-RUN yarn init-plugins && yarn build
 
-FROM node:24.22.1-alpine AS deps
+# nestjs-redis is installed from a git repository
 RUN apk add --no-cache git
+
 WORKDIR /app
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production && yarn cache clean
+RUN chown -R node:node /app
+
+USER node
+COPY --chown=node . /app
+
+RUN yarn install --frozen-lockfile
+
+# should be removed if you are using custom plugins
+RUN yarn init-plugins
+
+RUN yarn build
 
 FROM node:24.22.1-alpine
+
 # AssetsService runs git against dist/repos/mx-assets
 RUN apk add --no-cache git
+
 WORKDIR /app
-ENV NODE_CONFIG_DIR=dist/apps/delegation-api/config
-COPY --from=deps --chown=node:node /app/node_modules ./node_modules
-COPY --from=build --chown=node:node /app/dist ./dist
-COPY --chown=node:node apps/delegation-api/src/config/*.json ./dist/apps/delegation-api/config/
-COPY --chown=node:node package.json ./
+RUN chown -R node:node /app
+
+ENV NODE_CONFIG_DIR=/app/config
+
+COPY --from=build --chown=node /app/*.json /app/
+COPY --from=build --chown=node /app/dist /app/dist
+COPY --from=build --chown=node /app/node_modules /app/node_modules
+COPY --from=build --chown=node /app/apps/delegation-api/src/config/*.json /app/config/
+
 USER node
+
 EXPOSE 3005 4001
 CMD ["node", "dist/apps/delegation-api/main"]
