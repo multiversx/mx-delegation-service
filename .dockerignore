@@ -1,10 +1,6 @@
-.git
-.github
 node_modules
 dist
-coverage
-diagrams
+.npmrc
+.npm
 .env
-.env.*
-!.env.example
-*.log
+.git
