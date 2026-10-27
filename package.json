@@ -4,6 +4,9 @@
   "version": "1.0.0",
   "description": "Nest TypeScript starter repository",
   "license": "MIT",
+  "engines": {
+    "node": ">=24.22.1"
+  },
   "scripts": {
     "init-plugins": "run-script-os",
     "init-plugins:nix": "rimraf apps/delegation-api/src/plugins && mkdir apps/delegation-api/src/plugins && cp apps/delegation-api/src/plugins.template/plugin.module.ts.template apps/delegation-api/src/plugins/plugin.module.ts",
