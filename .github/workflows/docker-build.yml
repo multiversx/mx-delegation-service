@@ -33,7 +33,7 @@ jobs:
 
       - name: Check build output
         run: |
-          docker run --rm --entrypoint sh service:test -c 'test -f /app/dist/apps/delegation-api/main.js && test -f /app/dist/apps/delegation-api/plugins/plugin.module.js'
+          docker run --rm --entrypoint sh service:test -c 'test -f /app/dist/apps/delegation-api/main.js && test -f /app/dist/apps/delegation-api/plugins/plugin.module.js && test -f /app/apps/delegation-api/src/config/default.json'
 
       - name: Check custom plugins are kept
         if: matrix.plugins == 'custom'

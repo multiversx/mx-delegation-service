@@ -23,10 +23,13 @@ RUN apk add --no-cache git
 WORKDIR /app
 RUN chown -R node:node /app
 
+# same path as NODE_CONFIG_DIR in .env.example
+ENV NODE_CONFIG_DIR=apps/delegation-api/src/config
+
 COPY --from=build --chown=node /app/*.json /app/
 COPY --from=build --chown=node /app/dist /app/dist
 COPY --from=build --chown=node /app/node_modules /app/node_modules
-COPY --from=build --chown=node /app/apps/delegation-api/src/config/*.json /app/config/
+COPY --from=build --chown=node /app/apps/delegation-api/src/config/*.json /app/apps/delegation-api/src/config/
 COPY --from=build --chown=node /app/apps/delegation-api/src/plugins /app/apps/delegation-api/src/plugins
 
 USER node
