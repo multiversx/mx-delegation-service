@@ -7,9 +7,14 @@ import { IdentityInfo } from "./models/identity.info";
 @Injectable()
 export class AssetsService {
   private LOCAL_GIT_PATH = 'dist/repos/mx-assets';
+  private REMOTE_GIT_URL = 'https://github.com/multiversx/mx-assets.git';
 
 
   async checkout(): Promise<void> {
+    if (!fs.existsSync(this.LOCAL_GIT_PATH)) {
+      await simpleGit().clone(this.REMOTE_GIT_URL, this.LOCAL_GIT_PATH, ['--depth', '1', '--branch', 'master']);
+    }
+
     const options: Partial<SimpleGitOptions> = {
       baseDir: this.LOCAL_GIT_PATH,
       binary: 'git',
@@ -19,7 +24,7 @@ export class AssetsService {
 
     await git.checkout('master');
 
-    await git.pull('master');
+    await git.pull('origin', 'master');
   }
 
   getIdentityInfo(identity: string): IdentityInfo | null {
