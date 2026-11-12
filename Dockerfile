@@ -1,4 +1,4 @@
-FROM node:24.22.1-alpine AS build
+FROM node:24.22.3-alpine AS build
 
 # nestjs-redis is installed from a git repository
 RUN apk add --no-cache git
@@ -15,7 +15,7 @@ RUN [ -f apps/delegation-api/src/plugins/plugin.module.ts ] || yarn init-plugins
 
 RUN yarn build
 
-FROM node:24.22.1-alpine
+FROM node:24.22.3-alpine
 
 # AssetsService runs git against dist/repos/mx-assets
 RUN apk add --no-cache git
