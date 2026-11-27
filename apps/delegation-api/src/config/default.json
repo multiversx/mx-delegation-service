@@ -17,7 +17,8 @@
       { "year": 11, "maximumInflation": 0.0 }
     ],
     "stakingV5YearSettings" : [
-      { "year": 1, "maximumInflation": 0.08757 }
+      { "year": 1, "maximumInflation": 0.08757 },
+      { "year": 2, "maximumInflation": 0.08757 }
     ],
     "genesisTokenSupply": 20000000,
     "decimals": 2,
